@@ -1,0 +1,166 @@
+name: Build PDF and Deploy Quartz Site
+
+on:
+  push:
+    branches:
+      - v4
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  # -----------------------------------------------------
+  # JOB 1: Build PDFs for each course
+  # -----------------------------------------------------
+  build-pdf:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write # Needed to create the release
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Build all course PDFs
+        run: |
+          docker run --rm \
+            --volume "${GITHUB_WORKSPACE}:/data:z" \
+            --user 0:0 \
+            --entrypoint /bin/sh \
+            pandoc/extra -c '
+              # Install dependencies
+              tlmgr install pdfcol
+              
+              # Download the LUA filter from the URL
+              echo "Downloading callout.lua filter..."
+              wget -O /data/callout.lua "https://raw.githubusercontent.com/zcysxy/obsidian-pandoc-filters/refs/heads/main/filters/callout.lua"
+              
+              # Create a directory for the built PDFs
+              mkdir -p /data/pdf_builds
+              
+              # Find all "99-main.md" files inside the "content" directory
+              for main_file in $(find /data/content -name "99-main.md"); do
+                
+                dir=$(dirname $main_file)
+                output_name=$(basename $dir)
+                
+                echo "--- Processing Course: $output_name in $dir ---"
+                
+                # Find all *other* markdown files in this directory
+                other_files=$(find $dir -maxdepth 1 -name "*.md" -not -name "99-main.md" | sort)
+                
+                echo "Building $output_name.pdf..."
+                
+                pandoc $main_file $other_files \
+                  -o /data/pdf_builds/$output_name.pdf \
+                  --template=eisvogel \
+                  --lua-filter=/data/callout.lua \
+                  -s \
+                  --listings
+                  
+                echo "Successfully built $output_name.pdf"
+                echo "-----------------------------------"
+              done
+            '
+            
+      # --- NEW STEP TO CREATE THE NOTES ---
+      - name: Generate release notes
+        run: |
+          echo "## 📚 Latest Course Notes" > release_notes.md
+          echo "" >> release_notes.md
+          echo "This release contains the latest auto-generated PDF files:" >> release_notes.md
+          echo "" >> release_notes.md
+          
+          # Loop through the built PDFs and add them as a Markdown list
+          for f in pdf_builds/*.pdf; do
+            # 'basename $f' just gets the filename, e.g., "machine-learning.pdf"
+            echo "- **$(basename $f)**" >> release_notes.md
+          done
+          
+          echo "" >> release_notes.md
+          echo "---" >> release_notes.md
+          echo "Built from commit: \`${{ github.sha }}\`" >> release_notes.md
+
+      - name: Upload all PDFs to "latest" Release
+        uses: softprops/action-gh-release@v2
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          tag_name: "latest-pdf"
+          name: "Latest Course Notes (PDFs)"
+          body_path: "release_notes.md" 
+          prerelease: true
+          files: pdf_builds/*.pdf
+
+  #-----------------------------------------------------
+  # JOB 2: Build the Quartz site (No changes needed)
+  #-----------------------------------------------------
+  build-quartz:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 8
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: 'npm'
+          cache-dependency-path: quartz-source/package-lock.json
+
+      - name: Polish Markdown and Clean PDF Assets
+        run: |
+          echo "Polishing markdown files..."
+          find content -name "*.md" -print0 | xargs -0 sed -i -E \
+            -e '/^header-includes:/d' \
+            -e 's/\\newpage//g' \
+            -e 's/!\[\]\(([^)]+)\){width=([0-9]+)%}/<img src="\1" width="\2%">/g'
+
+          echo "Removing Pandoc-specific files from content..."
+          find content -name "99-main.md" -exec rm -f {} \;
+
+      - name: Install dependencies
+        run: npm install
+        working-directory: ./quartz-source
+
+      - name: Build Quartz site
+        run: npx quartz build --directory ../content
+        working-directory: ./quartz-source
+
+      - name: Upload Quartz build artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: quartz-build
+          path: quartz-source/public
+
+  # #-----------------------------------------------------
+  # # JOB 3: Deploy the built Quartz site to Cloudflare
+  # #-----------------------------------------------------
+  deploy-quartz:
+    needs: build-quartz
+    runs-on: ubuntu-latest
+
+    permissions:
+      deployments: write
+
+    steps:
+      - name: Download Quartz build artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: quartz-build # This name must match the upload step
+          path: public
+
+      - name: Deploy to Cloudflare Pages
+        uses: cloudflare/pages-action@v1
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          projectName: ${{ secrets.CLOUDFLARE_PROJECT_NAME }}
+          directory: public
+          # Optional: helps Cloudflare link the deployment to the commit
+          gitHubToken: ${{ secrets.GITHUB_TOKEN }}
