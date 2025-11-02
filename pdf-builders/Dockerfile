@@ -1,4 +1,4 @@
-FROM docker.io/pandoc/extra:latest
+FROM docker.io/pandoc/extra:3.7
 
 # Copy entrypoint
 COPY ./build-pdfs.sh /opt/build-pdfs.sh

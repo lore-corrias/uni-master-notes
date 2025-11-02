@@ -25,7 +25,8 @@ for main_file in $(find "$NOTES_DIR" -name "99-main.md"); do
     --template=eisvogel \
     --lua-filter=/opt/callout.lua \
     -s \
-    --syntax-highlighting=idiomatic
+    --listings
+    # --syntax-highlighting=idiomatic
     
   echo "Built $output_name.pdf"
 done

@@ -57,4 +57,4 @@ jobs:
           tag_name: "latest-pdf"
           name: "Latest Course Notes (PDFs)"
           body_path: "release_notes.md" 
-          files: $PDF_OUTPUT_DIR/*.pdf
+          files: ${{ env.PDF_OUTPUT_DIR }}/*.pdf
