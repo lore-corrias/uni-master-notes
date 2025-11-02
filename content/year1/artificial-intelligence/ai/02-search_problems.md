@@ -1,15 +1,7 @@
 ---
-title: 02 - Introduction to Search Problems
-tags: []
-draft: true
-date: 2025-10-06
+title: 02 - Problems and Search Problems
+draft:
 ---
-> [!summary] Index
-> Lezione precedente: [[uni/master/year1/artificial-intelligence/01-introduction|01-introduction]]
-> Lezione successiva: [[01-machine_learning]]
-
-# Problems
-
 One important property of an intelligent agent is its ability to _solve problems_, which are usually delineated via:
 
 1. A goal formulation
@@ -58,7 +50,7 @@ We can implement $SF(state)$ like a function that returns all adjacent city give
 
 To solve this problem we need to store the _whole state space_ in memory, so that we can represent the map as a graph.
 
-### Solve a Search Problem
+## Solving a Search Problem
 
 We will focus on static, fully observable, discrete and deterministic problems (the easiest).
 
@@ -115,14 +107,24 @@ Here is a simil-C pseudo-code _problem-independent_ implementation of a three-se
 ```
 function Tree-Search (problem, Enqueue)
 returns a solution, or failure
-	fringe ← an empty queue
-	fringe ← Enqueue(Make-Node(Initial-State[problem]),
+	fringe <- an empty queue
+	fringe <- Enqueue(Make-Node(Initial-State[problem]),
 fringe)
 	loop do
 		if Empty?(fringe) then return failure
-		node ← Remove-First(fringe)
+		node <- Remove-First(fringe)
 		if Goal-Test[problem](State[node]) succeeds
 		then return Solution(node)
-		fringe ← Enqueue(Expand(node, problem), fringe)
+		fringe <- Enqueue(Expand(node, problem), fringe)
 ```
 
+### Measuring a solution's performance
+
+There are two main ways of measuring the performance of a tree-search algorithm:
+
+* **Effectiveness**. Meaning: how "_good_" is the solution found? The two main characteristics of effectiveness are:
+	* _Completeness_, which tells whether or not the algorithm is _guaranteed_ to find a solution, if there is one.
+	* _Optimality_, which tells whether a solution found is the _best one_ or not.
+* **Efficiency**. Meaning, how _computationally complex_ is the found solution? The two measures used are:
+	* Time complexity
+	* Space complexity

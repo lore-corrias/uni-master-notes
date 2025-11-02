@@ -19,8 +19,10 @@ jobs:
   build-pdf:
     runs-on: ubuntu-latest
     permissions:
-      contents: write # Needed to create the release
+      contents: write
 
+    env:
+      PDF_OUTPUT_DIR: /tmp/pdfs-outputs
     steps:
       - name: Check out repository
         uses: actions/checkout@v4
@@ -28,46 +30,10 @@ jobs:
       - name: Build all course PDFs
         run: |
           docker run --rm \
-            --volume "${GITHUB_WORKSPACE}:/data:z" \
-            --user 0:0 \
-            --entrypoint /bin/sh \
-            pandoc/extra -c '
-              # Install dependencies
-              tlmgr install pdfcol
-              
-              # Download the LUA filter from the URL
-              echo "Downloading callout.lua filter..."
-              wget -O /data/callout.lua "https://raw.githubusercontent.com/zcysxy/obsidian-pandoc-filters/refs/heads/main/filters/callout.lua"
-              
-              # Create a directory for the built PDFs
-              mkdir -p /data/pdf_builds
-              
-              # Find all "99-main.md" files inside the "content" directory
-              for main_file in $(find /data/content -name "99-main.md"); do
-                
-                dir=$(dirname $main_file)
-                output_name=$(basename $dir)
-                
-                echo "--- Processing Course: $output_name in $dir ---"
-                
-                # Find all *other* markdown files in this directory
-                other_files=$(find $dir -maxdepth 1 -name "*.md" -not -name "99-main.md" | sort)
-                
-                echo "Building $output_name.pdf..."
-                
-                pandoc $main_file $other_files \
-                  -o /data/pdf_builds/$output_name.pdf \
-                  --template=eisvogel \
-                  --lua-filter=/data/callout.lua \
-                  -s \
-                  --listings
-                  
-                echo "Successfully built $output_name.pdf"
-                echo "-----------------------------------"
-              done
-            '
-            
-      # --- NEW STEP TO CREATE THE NOTES ---
+            --volume "${GITHUB_WORKSPACE}/content:/data/content" \
+            --volume "$PDF_OUTPUT_DIR:/tmp/pdfs" \
+            $(docker build "${GITHUB_WORKSPACE}/pdf-builders" -q) "/data/content" "/tmp/pdfs"
+
       - name: Generate release notes
         run: |
           echo "## 📚 Latest Course Notes" > release_notes.md
@@ -76,8 +42,7 @@ jobs:
           echo "" >> release_notes.md
           
           # Loop through the built PDFs and add them as a Markdown list
-          for f in pdf_builds/*.pdf; do
-            # 'basename $f' just gets the filename, e.g., "machine-learning.pdf"
+          for f in $PDF_OUTPUT_DIR/*.pdf; do
             echo "- **$(basename $f)**" >> release_notes.md
           done
           
@@ -92,4 +57,4 @@ jobs:
           tag_name: "latest-pdf"
           name: "Latest Course Notes (PDFs)"
           body_path: "release_notes.md" 
-          files: pdf_builds/*.pdf
+          files: $PDF_OUTPUT_DIR/*.pdf

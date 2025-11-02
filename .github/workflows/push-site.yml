@@ -20,46 +20,49 @@ jobs:
       - name: Check out repository
         uses: actions/checkout@v4
 
-      - name: Setup pnpm
-        uses: pnpm/action-setup@v4
-        with:
-          version: 8
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: 22
-          cache: 'npm'
-          cache-dependency-path: quartz-source/package-lock.json
-
-      - name: Polish Markdown and Clean PDF Assets
+      - name: Build quartz static files
         run: |
-          echo "Polishing markdown files..."
-          find content -name "*.md" -print0 | xargs -0 sed -i -E \
-            -e '/^header-includes:/d' \
-            -e 's/\\newpage//g' \
-            -e 's/!\[\]\(([^)]+)\)\{width=([0-9]+)%\}/<img src="\1" width="\2%">/g'
+          docker run --rm \
+            --volume "/tmp/quartz-static:/usr/src/app/public" \
+            $(docker build . -f "${GITHUB_WORKSPACE}/quartz-source/Dockerfile" -q)
 
-          echo "Removing Pandoc-specific files from content..."
-          find content -name "99-main.md" -exec rm -f {} \;
-
-      - name: Install dependencies
-        run: npm install
-        working-directory: ./quartz-source
-
-      - name: Build Quartz site
-        run: npx quartz build --directory ../content
-        working-directory: ./quartz-source
+      # - name: Setup pnpm
+      #   uses: pnpm/action-setup@v4
+      #   with:
+      #     version: 8
+      #
+      # - name: Setup Node.js
+      #   uses: actions/setup-node@v4
+      #   with:
+      #     node-version: 22
+      #     cache: 'npm'
+      #     cache-dependency-path: quartz-source/package-lock.json
+      #
+      # - name: Polish Markdown and Clean PDF Assets
+      #   run: |
+      #     echo "Polishing markdown files..."
+      #     find content -name "*.md" -print0 | xargs -0 sed -i -E \
+      #       -e '/^header-includes:/d' \
+      #       -e 's/\\newpage//g' \
+      #       -e 's/!\[\]\(([^)]+)\)\{width=([0-9]+)%\}/<img src="\1" width="\2%">/g'
+      #
+      #     echo "Removing Pandoc-specific files from content..."
+      #     find content -name "99-main.md" -exec rm -f {} \;
+      #
+      # - name: Install dependencies
+      #   run: npm install
+      #   working-directory: ./quartz-source
+      #
+      # - name: Build Quartz site
+      #   run: npx quartz build --directory ../content
+      #   working-directory: ./quartz-source
 
       - name: Upload Quartz build artifact
         uses: actions/upload-artifact@v4
         with:
           name: quartz-build
-          path: quartz-source/public
+          path: /tmp/quartz-static
 
-  # #-----------------------------------------------------
-  # # JOB 3: Deploy the built Quartz site to Cloudflare
-  # #-----------------------------------------------------
   deploy-quartz:
     needs: build-quartz
     runs-on: ubuntu-latest

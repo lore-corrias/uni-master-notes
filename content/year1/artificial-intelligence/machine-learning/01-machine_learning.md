@@ -1,9 +1,6 @@
 ---
 title: 01 - Machine Learning Introduction
-tags: []
 draft: false
-date: 2025-10-07
-header-includes: \usepackage[most]{tcolorbox}
 ---
 # Machine Learning
 

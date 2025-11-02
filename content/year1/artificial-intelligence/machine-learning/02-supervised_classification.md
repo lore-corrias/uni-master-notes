@@ -1,9 +1,6 @@
 ---
 title: 02 - Supervised Classification
-tags: []
 draft: false
-date: 2025-10-07
-header-includes: \usepackage[most]{tcolorbox}
 ---
 ## Supervised Classification
 

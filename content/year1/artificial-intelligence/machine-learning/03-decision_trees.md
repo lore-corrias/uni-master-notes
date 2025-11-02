@@ -1,9 +1,6 @@
 ---
 title: 03 - Decision Trees
-tags: []
 draft: false
-date: 2025-10-07
-header-includes: \usepackage[most]{tcolorbox}
 ---
 ## Decision Trees
 

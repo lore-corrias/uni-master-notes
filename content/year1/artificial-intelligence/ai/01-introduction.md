@@ -1,10 +1,8 @@
 ---
-title: Untitled
-tags: []
-draft: true
-date: 2025-09-30
+title: 01 - Introduction
+draft:
 ---
-# Intelligence
+## Intelligence
 
 Multi-faceted property, which includes the capabilities of:
 * Thinking
@@ -42,9 +40,8 @@ Eventually, AI evolved to handle more complex tasks passing from the _knowledge-
 
 These last technologies could only be built thanks to the huge amount of data stored on the internet and various other enabling factors: geopolitical interests, processing powers and economic incentives.
 
-# Agents
+## Agents
 
 An agent is defined as a system that acts rationally, according to well-defined objective (regardless of whether they are "intelligent" or not, according to the weak AI hypothesis). They are given some sensors to perceive the environment and make actions through effectors.
 
 ![](https://i.imgur.com/AtANFl9.png)
-
