@@ -4,6 +4,8 @@ author: Lorenzo Corrias
 uni: University of Cagliari
 prof: Ambra de Montis
 header-includes: \usepackage[most]{tcolorbox}
+toc: "true"
 toc-own-page: "true"
 titlepage: "true"
+draft: true
 ---

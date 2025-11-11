@@ -17,7 +17,7 @@ for main_file in $(find "$NOTES_DIR" -name "99-main.md"); do
   echo "Building $output_name.pdf..."
   
   # Finding all the actual notes, excluding placeholders
-  other_files="$(find "$dir" -maxdepth 1 -name "*.md" -not -name "99-main.md" -not -name "index.md" | sort)"
+  other_files="$(find "$dir" -maxdepth 1 -name "*.md" -not -name "index.md" | sort)"
   
   # Building the PDFs
   pandoc "$main_file" $other_files \
