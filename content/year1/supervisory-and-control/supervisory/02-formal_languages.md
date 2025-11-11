@@ -32,7 +32,9 @@ $$
 
 The empty word has length zero, and is defined  on all alphabets. It is denoted by the symbol $\epsilon$.
 
-The set of all words of an alphabet $E$ is $E^*$, called _Kleene Star_ (or _Kleene closure_). This set is infinite, in contrast to $E$ which is finite. If a word is part of an alphabet we say that $w \in E^*$.
+> [!info] Kleene Star
+>
+> The set of all words of an alphabet $E$ is $E^*$, called _Kleene Star_ (or _Kleene closure_). This set is infinite, in contrast to $E$ which is finite. If a word is part of an alphabet we say that $w \in E^*$.
 
 ### Concatenation Operator
 
@@ -63,7 +65,9 @@ For example, having $w = abcd$:
 
 ### Projection Operator
 
-Given $w \in E^*$ and a subset alphabet $\hat{E} \subseteq E$ the projection of $w$ on $\hat{E}$ is the word obtained from $w$ all symbols not in $\hat{E}*$. For example, if:
+Given $w \in E^*$ and a subset alphabet $\hat{E} \subseteq E$ the projection of $w$ on $\hat{E}$ is the word obtained from $w$ by removing all symbols not present in $\hat{E}$.
+
+For example, if:
 
 $$
 E = \{a, b, c\}\ \ \ \hat{E} = \{a,b\}
@@ -106,7 +110,7 @@ $$
 
 They work the same as they do in set theory.
 
-Having $\bar{E} = E_1 \cap E_2$, $E = E_1 \cup E_2$, we have: 
+Having $\overline{E} = E_1 \cap E_2$, $E = E_1 \cup E_2$, we have: 
 
 * For the union, we have that the union is given by the words that belong either to $L_1$ or $L_2$:
 
@@ -117,7 +121,7 @@ $$
 * For the intersection, we have that it is given by the set of words that belong to both $L_1$ and $L_2$. 
 
 $$
-L_1 \cap L_2 = \{w \in \bar{E}^*\ |\ w \in L_1 \lor w \in L_2\}
+L_1 \cap L_2 = \{w \in \overline{E}^*\ |\ w \in L_1 \lor w \in L_2\}
 $$
 
 > [!info] Properties
@@ -147,7 +151,7 @@ $$
 we have:
 
 $$
-L_1L_2 = \{\epsilon \cdot a\} \cup \{\epsilon \cdot b\} \cup \{\epsilon \cdot ab\} \cup \{a \cdot a\} \cup \{a \cdot b\} \cup \{a \cdot ab\} \cup \{a,b,aa,bb,abb\} \
+L_1L_2 = \{\epsilon \cdot a\} \cup \{\epsilon \cdot b\} \cup \{\epsilon \cdot ab\} \cup \{a \cdot a\} \cup \{a \cdot b\} \cup \{a \cdot ab\} \cup \{a,b,aa,bb,abb\}
 $$
 
 > [!info] Properties
@@ -179,16 +183,16 @@ $$
 
 > [!info] Prefix Closure
 > 
-> A prefix language $\bar{L}$ of a language $L$ is the language that contains all prefixes of the words in $L$:
+> A prefix language $\overline{L}$ of a language $L$ is the language that contains all prefixes of the words in $L$:
 > 
 > $$
-> \bar{L} = \{u \in E^*\ |\ \text{there is } w \in L: u \preceq w\}
+> \overline{L} = \{u \in E^*\ |\ \text{there is } w \in L: u \preceq w\}
 > $$
 
 For example:
 
-* $L_1 = \{\epsilon, a, aa\}$, we have $L_1 = \bar{L}_1$. In this case, we say that $L_1$ is prefix closed.
-* $L_2 = \{a, b, ab\}$, we have $L_2 \not\subseteq \bar{L}_2 = \{\epsilon, a, b, ab\}$
+* $L_1 = \{\epsilon, a, aa\}$, we have $L_1 = \overline{L}_1$. In this case, we say that $L_1$ is called "**prefix closed**".
+* $L_2 = \{a, b, ab\}$, we have $L_2 \not\subseteq \overline{L}_2 = \{\epsilon, a, b, ab\}$
 
 ## Complement
 
@@ -230,7 +234,7 @@ $$
 
 > [!help] Demonstration
 > 
-> This is trivial: consider $E_1 = \{a\}, E_2 = \{a\}$, if we have $w = a$ $w \uparrow E_1 = a$, as we have to remove symbols from $w$ which are not in $E_1$, and since there are none, we get the same word. Since $E_1 = E_2$, it's the same for $w \uparrow E_2$.
+> This is trivial: consider $E_1 = \{a\}, E_2 = \{a\}$, we could have $w = a$ $w \uparrow E_1 = a$, since we have to remove symbols from $w$ which are not in $E_1$, and since there are none, we get the same word. Since $E_1 = E_2$, it's the same for $w \uparrow E_2$.
 
 and therefore:
 

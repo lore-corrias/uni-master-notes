@@ -23,11 +23,11 @@ The alphabets of the two systems are, respectively, $E', E''$. For starters, we 
 
 Which are:
 
-*  Events **private to $G'$**: defined as $E' \textbackslash E''$.
-*  Events **private to $G''$**: defined as $E'' \textbackslash E$.
+*  Events **private to $G'$**: defined as $E' \setminus E''$.
+*  Events **private to $G''$**: defined as $E'' \setminus E'$.
 * Synchronized events: defined as $E' \cap E''$.
 
-This division will turn useful later.
+This division will be useful later.
 
 Our system $G = G' \mid \mid G''$ has a space $X$, which is defined as $X \subset X' \times X''$. in this case, $X', X''$ are, respectively, the state spaces of $G', G''$: this means that a state $X$ is in the form $x = (x', x'') \in X$, where $x' \in X', x'' \in X''$. Having this definition, we can formalize the concepts of _private_ and _synchronized_ states:
 
@@ -52,8 +52,9 @@ The final DFA built from two separate ones looks like this:
 Here, $c$ is the concurrent composition of DFAs $a$ and $b$. In this case, each state is denoted by two symbols: one from the first DFA and one from the second. If we were to, say, compose the word $w = abc$, we would:
 
 1. Start from $(x_0', x_0'')$
-2. Follow the path labeled with $a$: since the DFA $a$ has a transition defined for this event, we move from state $x_0'$ to the destination state, which is $x_1'$. However, since $b$ has no such path, we remain on state $x_0''$. This means that the resulting state will be $(x_1', x_0'')$. 3. Now, we follow the path $b$: applying the same reasoning as that of step 2, we end up in $(x_0', x_1'')$.
-3. Same as step 2 and 3, but we follow the $c$ path that leads us to the final state $(x_0', x_0'')$. This means that $w$ is an accepted word.
+2. Follow the path labeled with $a$: since the DFA $a$ has a transition defined for this event, we move from state $x_0'$ to the destination state, which is $x_1'$. However, since $b$ has no such path, we remain on state $x_0''$. This means that the resulting state will be $(x_1', x_0'')$. 
+3. Now, we follow the path $b$: applying the same reasoning as that of step 2, we end up in $(x_0', x_1'')$.
+4. Same as step 2 and 3, but we follow the $c$ path that leads us to the final state $(x_0', x_0'')$. This means that $w$ is an accepted word.
 
 ### Algorithm to compute the parallel composition
 
@@ -70,32 +71,33 @@ We then take the following steps:
 	* _In formulas, $E = E' \cup E''$_
 2. We define the initial state of the output automata $G$ as the cartesian product of the initial states $G'$ and $G''$
 	* _In formulas, $x_0 = (x_0', x_0'')$_
-3. We define two distinct sets, $X$, the state space of $G$, and $X_{new}$. We initialize $X$ as an empty set, and $X_{new}$ as a set containing only the initial state of $G$, $x_0$. As we go on on the algorithm, we will add to the set $X_{new}$ the states of $G$ that still have to be explored, while at the end we will have $X \subseteq X' \times X''$ containing all states of $G$.
+3. We define two distinct sets, $X$, the state space of $G$, and $X_{new}$. We initialize $X$ as an empty set, and $X_{new}$ as a set containing only the initial state of $G$, $x_0$. As we go on with the algorithm, we will add to the set $X_{new}$ the states of $G$ that still have to be explored, while at the end we will have $X \subseteq X' \times X''$ containing all states of $G$.
 	* _In formulas, $X=\emptyset, X_{new} = \{x_0\}$_
 4. We start adding states in the form $x = (x', x'')$ to $X_{new}$. To understand how, we start by iterating all symbols of the alphabet $E$, $e \in E$. In order to start building the automata $G$, we need to define the transition states of the $\delta$ function and the elements of $X$.
    To do this:
 	1. We consider four different states depending on the subset in which $E$ resides:
-		1. If $e \in E' \textbackslash E''$, meaning that $e$ is a _private event_ to $G'$, then we know that this path will only change the destination state of the first $G'$. In particular, we can call this new state $\bar{x}'$, and define it as $\bar{x}' = \delta'(x', e)$. Then, we can define the output of the transition function $\delta(x, e)$ as: $\delta(x,e) = (\bar{x}', x'')$, since the second automata $G''$ does not change its state.
-		2. If $e \in E'' \textbackslash E'$, then the event is private to $G''$. We can apply the same reasoning as above and determine that $\bar{x}'' = \delta''(x'', e)$ and $\delta(x, e) = (x', \bar{x}'')$.
+		1. If $e \in E' \setminus E''$, meaning that $e$ is a _private event_ to $G'$, then we know that this path will only change the destination state of the first $G'$. In particular, we can call this new state $\bar{x}'$, and define it as $\bar{x}' = \delta'(x', e)$. Then, we can define the output of the transition function $\delta(x, e)$ as: $\delta(x,e) = (\bar{x}', x'')$, since the second automata $G''$ does not change its state.
+		2. If $e \in E'' \setminus E'$, then the event is private to $G''$. We can apply the same reasoning as above and determine that $\bar{x}'' = \delta''(x'', e)$ and $\delta(x, e) = (x', \bar{x}'')$.
 		3. If $e \in E' \cap E''$, this means that the event is synchronous to both $G', G''$. This implies that the transition would move $G$ states in both automata. We thus have $\bar{x}' = \delta'(x', e)$, which is the new state from the first automata, and $\bar{x}'' = \delta''(x'', e)$ which is the new state from the second automata. The transition function incorporates both these new states: $\delta(x,e) = (\bar{x}', \bar{x}'')$
 		4. Finally, if $e$ is in none of these states, the transition function is undefined
 			* _In formulas_:
 			  $$
 			  \delta(x,e) = \begin{cases}
-			  (\bar{x}', x'') & \text{if } e \in E' \textbackslash E'', \delta'(x', e) = \bar{x}' \\
-			  (x', \bar{x}'') & \text{if } e \in E'' \textbackslash E', \delta''(x'', e) = \bar{x}'' \\
+			  (\bar{x}', x'') & \text{if } e \in E' \setminus E'', \delta'(x', e) = \bar{x}' \\
+			  (x', \bar{x}'') & \text{if } e \in E'' \setminus E', \delta''(x'', e) = \bar{x}'' \\
 			  (\bar{x}', \bar{x}'') & \text{if } e \in E' \cap E'', \delta'(x', e) = \bar{x}', \delta''(x'', e) = \bar{x}'' \\
+			  \text{undefined} & \text{otherwise}
 			  \end{cases}
 			  $$
-	2. We know say that $\bar{x} = \delta(x,e)$: meaning that the new state is defined as the output of the transition function from state $x$ after the event $e$ has fired. Here, if $\bar{x}$ is defined (if it isn't, which might be the case, then we don't add this new state to $X_{new}$) and $\bar{x}$ is not yet part of the set $X$ or $X_{new}$, we add it to $X_{new}$
+	2. We now say that $\bar{x} = \delta(x,e)$: meaning that the new state is defined as the output of the transition function from state $x$ after the event $e$ has fired. Here, if $\bar{x}$ is defined (if it isn't, which might be the case, then we don't add this new state to $X_{new}$) and $\bar{x}$ is not yet part of the set $X$ or $X_{new}$, we add it to $X_{new}$
 		* _In formulas: $\text{if } \bar{x} = \delta(x,e) \text{ is defined } \land \bar{x} \not\in X \cup X_{new} \to X_{new} = X_{new} \cup \{\bar{x}\}$._
-5. We keep iterating step $4$ until $X_{new}$ is not empty
+5. We keep iterating step $4$ until $X_{new}$ is empty
 6. Once we are done, we define the set of the final states of $G$ $X_m$ as the union of the sets of the final states of $G', G''$. This means that a state of $G$ is final only if it is final for both $G', G''$.
 	* _In formulas: $X_m = X \cap (X'_m \times X''_m)$_.
 
 As an example, if we consider the composed DFA $G$ from above, this is the table that summarizes the steps needed to build it:
 
-|                 | $E'\ \textbackslash\ E''$ | $E'\ \cap\ E''$ | $E'' \textbackslash E$ |
+|                 | $E'\ \setminus\ E''$ | $E'\ \cap\ E''$ | $E'' \setminus E$ |
 | --------------- | ------------------------- | --------------- | ---------------------- |
 | $x$             | $a$                       | $b$             | $c$                    |
 | $(x'_0, x''_0)$ | $(x'_1, x''_0)$           | -               | -                      |
@@ -105,7 +107,10 @@ As an example, if we consider the composed DFA $G$ from above, this is the table
 | $(x'_0, x''_2)$ | $(x'_1, x''_2)$           | -               | $(x'_0, x''_1)$        |
 | $(x'_1, x''_2)$ | -                         | -               | $(x'_1, x''_1)$        |
 
-In the top, we specify for each symbol of $E$ the subset of which it is part. Then we can compute the transitions depending on the starting state (on the left) and the resulting symbol. As an example, starting from the initial state and consuming $a$, we move to $(x_1', x_0'')$, but we cannot consume neither $b$ nor $c$, since $b$ is not active in $x_0'$ and $c$ is not active in $x_0''$, $\delta((x_0', x_0''), b)$ and $\delta((x_0', x_0''), a)$ are undefined.
+At the top, we specify for each symbol of $E$ the subset of which it is part. Then we can compute the transitions depending on the starting state (on the left) and the resulting symbol. As an example, starting from the initial state and consuming $a$, we move to $(x_1', x_0'')$, but we cannot consume neither $b$ nor $c$, since:
+
+* $b$ is a synchronized event, but it is **not** active in $x_0'$. This means that $\delta((x_0',x_0''),b)$ is undefined.
+* $c$ is a private event to $G''$, but it is **not** active in $x_0''$. This means that $\delta((x_0', x_0''), c)$ is undefined.
 
 ### Cardinality of a composed system
 

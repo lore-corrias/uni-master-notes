@@ -31,7 +31,7 @@ $$
 
 > [!help] Properties
 >
-> When the machine has an input sequence of $\epsilon$ (when it is _initialized_), an output $\lambda(x_0)$ is produced. This implies that the length of the output sequence is always one unit greater than that of the input sequence.
+> When the machine has an input sequence of $\epsilon$ (when it is _initialized_), an output $\lambda(x_0)$ is produced, meaning that the output symbol corresponding to the initial state is _always_ produced. This implies that the length of the output sequence is always one unit greater than that of the input sequence.
 
 The graphical representation is similar to that of a DFA. However, we label each state by the value of the function for $\lambda(x)$:
 
@@ -47,7 +47,7 @@ In this case, this Moore machine:
 
 ### Comparison with DFAs
 
-Moore machines: have a **non-defined** set of final states (while DFAs do).
+Moore machines have a **non-defined** set of final states (while DFAs do).
 
 However, if we take the output function of a Moore machine we can classify the states of a DFA in as many classes as there are output symbols. I.e.: for the Moore machine above, we'd have the set of states with $A$ as an output symbol being $\{x_2\}$. That for the symbol $Y$ would be $\{x_1,x_3\}$, and so on.
 

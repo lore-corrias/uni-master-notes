@@ -65,18 +65,23 @@ $$
 A(x) = \{e \in E\ |\ \delta(x, e) \text{ is defined}\}
 $$
 
-To say that $e \in A(x)$ we can write $\delta(x, e)!$, meaning that $\delta$ is defined for the given pair. This definition implies that $A(x)$ is a subset of $E$, but can never be equal to $E$. 
+To say that $e \in A(x)$ we can write $\delta(x, e)!$, meaning that $\delta$ is defined for the given pair. This definition implies that $A(x)$ is a subset of $E$, but can never be equal to $E$, as there are always some $e \in E$ that are not enabled, and thus do not belong to $A$. 
 
 Since $\delta$ is a function, we cannot have multiple transitions with the same label outputting from a state $x$.
 
 ## Productions
 
-The behavior of an automaton is given by the evolution of its states, described by their productions. Given a DFA $G$, we define a production of length $k$ a sequence of states and transitions:
+The behavior of an automaton is given by the evolution of its states, described by their productions. 
 
-$$
-x_{j_0} \rightarrow^{e_1} x_{j_1} \rightarrow^{e_2}\ ...\ x_{j_{k-1}} \rightarrow^{e_k} x_{j_k} 
-$$
-where for all $i = 0,\ ..., k$ we have $x_{j_i} \in X$ and for all $i = 1,\ ...,k$ we have $x_{j_i} = \delta(x_{j_{i-1}, e_i})$
+> [!info] Productions
+> 
+> Given a DFA $G$, we define a production of length $k$ a sequence of states and transitions:
+>
+>$$
+>x_{j_0} \rightarrow^{e_1} x_{j_1} \rightarrow^{e_2}\ ...\ x_{j_{k-1}} \rightarrow^{e_k} x_{j_k} 
+>$$
+>
+>where, for all $i = 0,\ ..., k$ we have $x_{j_i} \in X$ and for all $i = 1,\ ...,k$ we have $x_{j_i} = \delta(x_{j_{i-1}, e_i})$
 
 
 
@@ -88,7 +93,7 @@ where for all $i = 0,\ ..., k$ we have $x_{j_i} \in X$ and for all $i = 1,\ ...,
 > Given a DFA $G$, we say that a word $w \in E^*$ is:
 > 
 > * generated if $\delta^*(x_0,w)!$, meaning that a production exists that generates $w$ from the initial state
-> * accepted if $\delta^*(x_0,w) = x \in X_M$, meaning that a production exists that generates $w$ starting from an initial state _and_ reaches a final state
+> * accepted if $\delta^*(x_0,w) = x \in X_M$, meaning that a production exists that generates $w$ starting from an initial state _and_ reaching a final state
 
 \newpage
 
@@ -114,13 +119,13 @@ In order to have a clear set of all productions of a DFA in a more compact way, 
 
 > [!info] Transitive and reflexive closure of $\delta$
 > 
-> Given a DFA $G$ we define $\delta^* : X \times E^* \to X$ such that $\delta^*(x,w) = \bar{x}$ only if there exists a production:
+> Given a DFA $G$ we define $\delta^* : X \times E^* \to X$ such that $\delta^*(x,w) = \overline{x}$ only if there exists a production:
 > 
 >$$
-> x \to^{e_1} x_{j_1} \to^{e_2} \dots \to^{e_k} \bar{x}
+> x \to^{e_1} x_{j_1} \to^{e_2} \dots \to^{e_k} \overline{x}
 > $$
 
-So, the transitive and reflexive closure of $\delta$ is just a functions that outputs _only words $w$ that can be generated starting from $x$ and reaching $\bar{x}$_.
+So, the transitive and reflexive closure of $\delta$ is just a functions that outputs _only the words $w_i$ that can be generated starting from $x$ and reaching $\overline{x}$_.
 
 ![](https://i.imgur.com/U7PGqvy.png)
 
@@ -138,7 +143,7 @@ In this case, for example, we have $\delta^*(x_0, abcc) = x_2$, because we can g
 
 In other words, the generated language of an automaton describes **all possible evolutions of a system**.
 
-A _generated language_ is **always prefix closed**: $L(G) = \bar{L(G)}$. So if a word can be generated, so can all its prefixes.
+A _generated language_ is **always prefix closed**: $L(G) = \overline{L(G)}$. So if a word can be generated, so can all its prefixes.
 
 > [!info] Accepted Language
 >
@@ -150,12 +155,12 @@ A _generated language_ is **always prefix closed**: $L(G) = \bar{L(G)}$. So if a
 
 In other words, the accepted language describes the evolutions that correspond to the completion of certain tasks.
 
-An _accepted language_ is not necessarily prefixed closed, meaning $L_m(G) \subseteq \bar{L_m(G)}$. It is prefixed closed only if $X_m = X$.
+An _accepted language_ is not necessarily prefixed closed, meaning $L_m(G) \subseteq \overline{L_m(G)}$. It is prefixed closed only if $X_m = X$ (if all states are final, then all words that are generated are also accepted).
 
-In general we can say that if a word is accepted, than _all of its prefixes can be generated_: $\bar{L_m(G)} \subseteq L(G)$. So we have:
+In general we can say that if a word is accepted, than _all of its prefixes can be generated_: $\overline{L_m(G)} \subseteq L(G)$. So we have:
 
 $$
-L_m(G) \subseteq \bar{L_m(G)} \subseteq L(G) = \bar{L(G)}
+L_m(G) \subseteq \overline{L_m(G)} \subseteq L(G) = \overline{L(G)}
 $$
 
 ## Class of Languages
@@ -176,19 +181,25 @@ $$
 
 This is because:
 
-1. If a language is generated, than it is also accepted: if a language is generated from a DFA $G$, then there also exists a DFA $G'$ that accepts it, and it can be obtained from $G$ by redefining all states as final
+1. If a language is generated, then it is also accepted: if a language is generated from a DFA $G$, then there also exists a DFA $G'$ that accepts it, and it can be obtained from $G$ by redefining all states as final
 2. Any language accepted by a DFA G where all states are not final is _not prefix closed_, so it does not belong to $L'_{DFA}$ (all languages generated are prefix closed). This means that the inclusion is _strict_.
 
 ## Properties of an Automaton
 
 ### Properties for a State
 
-Given an automaton $G$, a state $x \in X$ is called:
+> [!info] State properties of a DFA
+> 
+> Given an automaton $G$, a state $x \in X$ is called:
+>
+> * **Reachable** from a state $\overline{x} \in X$: there exists a word $w \in E^*$ such that $\delta^*(\overline{x}, w) = x$.
+> * **Co-reachable** to state $\overline{x} \in X$: there exists a word $w \in E^*$  such that $\delta^*(x,w) = \overline{x}$. This is basically the mirrored property of reachability.
+> * **Blocking**: if it is reachable, but not co-reachable.
+> * **Dead**: if $A(x) = \emptyset$. Meaning that no transition is enabled at $x$.
 
-* **Reachable** from a state $\bar{x} \in X$: there exists a word $w \in E^*$ such that $\delta^*(\bar{x}, w) = x$.
-* **Co-reachable** to state $\bar{x} \in X$: there exists a word $w \in E^*$  such that $\delta^*(x,w) = \bar{x}$. This is basically the mirrored property of reachability.
-* **Blocking**: if it is reachable, but not co-reachable.
-* **Dead**: if $A(x) = \emptyset$. Meaning that no transition is enabled at $x$.
+> [!warning] (Co)reachability
+> 
+> Since a state $x$ is always (co)reachable **with respect to another state** $\overline{x}$, when we are not making it explicit we usually refer to the _initial state_.
 
 An example of blocking, but not dead state is $x_2$ in the following DFA. $x_3$, instead, is a dead state.
 
@@ -196,8 +207,8 @@ An example of blocking, but not dead state is $x_2$ in the following DFA. $x_3$,
 
 Graphically, we can say that:
 
-* $x$ is reachable from $\bar{x}$ if there is a path from $\bar{x}$ to $x$
-* $\bar{x}$ is co-reachable from $x$ if there is a path from $x$ to $\bar{x}$
+* $x$ is reachable from $\overline{x}$ if there is a path from $\overline{x}$ to $x$
+* $x$ is co-reachable from $\overline{x}$ if there is a path from $x$ to $\overline{x}$
 * $x$ is dead if there is no output arcs from that node
 
 ### Properties for a DFA
@@ -212,7 +223,7 @@ A DFA $G$ is called:
 
 So, we can say that, graphically, an automaton is:
 
-* **Blocking**, if there exists a _reachable ergodic component_ that does not contain _marked states_ (basically, once you reach that component you are stuck, and cannot reach any other state)
+* **Blocking**, if there exists a _reachable ergodic component_ that does not contain _marked states_ (basically, once you reach that component you are stuck, and cannot reach any other state which is final)
 * **Reversible**, if the graph is _fully connected_
 
 > [!info] Extra: ergodic component
@@ -239,21 +250,27 @@ This automaton, instead, is reversible:
 
 ## Non-Blocking Languages
 
-We can say that a DFA $G$ is non-blocking _if and only if_ $\bar{L_m(G)} = L(G)$.
+We can say that a DFA $G$ is non-blocking _if and only if_ $\overline{L_m(G)} = L(G)$, meaning that the language is equal to the prefix closed language of accepted words (the automaton generates only accepted words, and the language is prefix closed).
 
 > [!help] Explanation
 > 
-> The **if** part can be explained in the following way: if $\bar{L_m(G)}=L(G)$, then every generated word $u \in L(G)$ is, logically, also a prefix of another accepted word: this can be also re-expressed by saying that for all generated words $u$ there exists a word $v$ such that $uv \in L_m(G)$. Rewriting this using _states_, we can say that for every reachable state $x = \delta^*(x_0, u)$, there exists a word $v$ such that $\delta^*(x, v)$ is a final state. This proves that all reachable states are co-reachable, which is the fundamental assumption for saying that a DFA is non-blocking.
+> The **if** part can be explained in the following way: if $\overline{L_m(G)}=L(G)$, then every generated word $u \in L(G)$ is, logically, also a prefix of another accepted word: this can be also re-expressed by saying that for all generated words $u$ there exists a word $v$ such that $uv \in L_m(G)$. Rewriting this using _states_, we can say that for every reachable state $x = \delta^*(x_0, u)$, there exists a word $v$ such that $\delta^*(x, v)$ is a final state. This proves that all reachable states are co-reachable, which is the fundamental assumption for saying that a DFA is non-blocking.
 
 > [!help] Explanation
 > 
-> The **only if** part, instead, can be demonstrated by absurd. Let's assume that $\bar{L_m(G)} \subset L(G)$: this would mean that there exists a generated word $u \in L(G)$ that is not a prefix of an accepted word, meaning we have no word $v$ so that $uv \in L_m(G)$ is accepted. So, if we call $x = \delta(x_0, u)$ the state reached by generating $u$, we have no word $v$ such that $\delta^*(x,v)$ is a final state, since we said that we have no way to generate the accepted word $uv$. This means that $x$ is accessible, but _not_ co-reachable $\rightarrow$ $x$ is blocking, so the whole demonstration by absurd proves that $\bar{L_m(g)} \subset L(G)$ is not a sufficient assumption.
+> The **only if** part, instead, can be demonstrated by absurd. Let's assume that $\overline{L_m(G)} \subset L(G)$: this would mean that there exists a generated word $u \in L(G)$ that is not a prefix of an accepted word, meaning we have no word $v$ so that $uv \in L_m(G)$ is accepted. So, if we call $x = \delta(x_0, u)$ the state reached by generating $u$, we have no word $v$ such that $\delta^*(x,v)$ is a final state, since we said that we have no way to generate the accepted word $uv$. This means that $x$ is accessible, but _not_ co-reachable $\rightarrow$ $x$ is blocking, so the whole demonstration by absurd proves that $\overline{L_m(g)} \subset L(G)$ is not a sufficient assumption.
 
 Let's make an example with the following DFA:
 
 ![](https://i.imgur.com/2ke9No4.png)
 
-Here, we have that $L_m(G) = \{ba^n\mid n \geq 0\}$ (this DFA generates all words with exactly one $b$ and $n$ $a$'s). We also have that $\bar{L_m(G)} \subset L(G)$, since:
+Here, we have that $L_m(G) = \{ba^n\mid n \geq 0\}$ (this DFA generates all words with exactly one $b$ and $n$ $a$'s). We also have that $\overline{L_m(G)} \subset L(G)$, since:
+
+$$
+\overline{L}_m(G) = \{\epsilon\} \cup \{ba^n \mid n \geq 0\}
+$$
+
+and
 
 $$
 L(G) = \{\epsilon, a, aa\} \cup \{ba^n\mid n \geq 0\}
@@ -280,7 +297,7 @@ so we can say that the DFA is **blocking**.
 So, in other words: we take $G$ and remove all states that are **not reachable nor co-reachable**, and the **transitions** that **input or output** from them. So, we have:
 
 $$
-L_m(G') = L_m(G) \text{ and } L(G') = \bar{L_m(G')} = \bar{L_m(G)}
+L_m(G') = L_m(G) \text{ and } L(G') = \overline{L_m(G')} = \overline{L_m(G)}
 $$
 
 The trimming does **not** change the accepted language, but:
@@ -302,14 +319,14 @@ Normally, automatons are considered as _sequence recognizer_: in this view, a DF
 
 ### Complete a DFA
 
-To complete a DFA, we can start from a non-complete one $G$ and generate a complete one, called $G' = (X', E', \delta', x_0', X_m')$, so that $L_m(G') = L_m(G)$ and $L(G') = E^*$. To do this, we proceed as follows
+To complete a DFA, we can start from a non-complete one $G$ and generate a complete one, called $G' = (X', E', \delta', x_0', X_m')$, so that $L_m(G') = L_m(G)$ and $L(G') = E^*$. To do this, we proceed as follows:
 
 1. Let $X' = X \cup \{x_c\}$ (we add a new state that we defined below)
 2. Let $E' = E$, $x'_0 = x_0$ and $X'_m = X_m$ (these remain the same)
 3. For all $x \in X'$ and for all $e \in E$:
    
    $$
-\delta(x', e) = \begin{cases}\delta(x, e) & \text{if } \delta(x,e) \text{ is defined}\\ x_c & \text{otherwise}\end{cases}
+	\delta(x', e) = \begin{cases}\delta(x, e) & \text{if } \delta(x,e) \text{ is defined}\\ x_c & \text{otherwise}\end{cases}
    $$
 
 The resulting generated language $G'$ accepts the same language as $G$, but it does not **generate the same language**. Also, $G'$ is certainly blocking, since $x_c$ is not co-reachable.

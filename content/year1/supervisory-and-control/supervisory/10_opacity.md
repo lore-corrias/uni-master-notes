@@ -64,7 +64,7 @@ We can now define initial-state opacity like this:
 > Given a DFA $G$, a secret $S \subseteq X$ and a set $E_I$ of observable events by the intruder, the system is _initial-state opaque_ (ISO) w.r.t. $S$ and $E_I$ if:
 > 
 > $$
-> \forall \sigma \in L(G,S), \exists \sigma' \in L(G,X \textbackslash S) : P_{E_I}(\sigma') = P_{E_I}(\sigma)
+> \forall \sigma \in L(G,S), \exists \sigma' \in L(G,X \setminus S) : P_{E_I}(\sigma') = P_{E_I}(\sigma)
 > $$
 
 This can be read as: for all evolution generated from a secret state, there is always at least a non-secret state from which the same observation can be generated.
@@ -87,10 +87,11 @@ Since, from all observations, there are multiple possibilities for the initial s
 Our goal here is to prevent the observer from being sure if the observed sequence is in the secret. Formally:
 
 > [!info] Language opacity
+> 
 > Given a DFA $G$, a secret $S \subseteq L(G)$ and a set $E_I$ of observable events by the intruder, the system is _language opaque_ (LO) w.r.t. $S$ and $E_I$ if:
 > 
 > $$
-> \forall \sigma \in S, \exists \sigma' \in L(G) \textbackslash S : P_{E_I}(\sigma') = P_{E_I}(\sigma)
+> \forall \sigma \in S, \exists \sigma' \in L(G) \setminus S : P_{E_I}(\sigma') = P_{E_I}(\sigma)
 > $$
 
 This can be read as: for any secret string that $G$ might generate, there is always at least another non-secret string that $G$ might generate by producing the same observation.
@@ -179,10 +180,10 @@ To verify initial-state opacity, we first need to define the set of states that 
 > Given an observation $w \in P_{E_I}(L(G,X))$, we define the set of states generating $w$ as:
 > 
 > $$
-> \mathscr{L}(w) = \{x \in X \mid \exists \sigma \in L(G,X) : \delta(x, \sigma)!, P_{E_I}(\sigma) = w\}
+> \mathcal{L}(w) = \{x \in X \mid \exists \sigma \in L(G,X) : \delta(x, \sigma)!, P_{E_I}(\sigma) = w\}
 > $$
 
-For example, in this DFA $\mathscr{L}(b) = \{0,1\}$:
+For example, in this DFA $\mathcal{L}(b) = \{0,1\}$:
 
 ![](https://i.imgur.com/WN5qjRk.png)
 
@@ -193,17 +194,17 @@ Now we can define a proof for initial-state opaqueness:
 > A DFA $G$ is initial-state opaque w.r.t. $S$ and $E_I$ if and only if:
 > 
 > $$
-> \forall w \in E_I^*, \mathscr{L}(w) \not\subseteq S
+> \forall w \in E_I^*, \mathcal{L}(w) \not\subseteq S
 > $$ 
 
-Meaning that the sets of generating states for all observable words must not be contained in $S$. To compute all $\mathscr{L}$ of the words of $G$, we define a reverse automaton $G_r = (X,E,\delta_r)$, obtained by reversing all arcs in G:
+Meaning that the sets of generating states for all observable words must not be contained in $S$. To compute all $\mathcal{L}$ of the words of $G$, we define a reverse automaton $G_r = (X,E,\delta_r)$, obtained by reversing all arcs in G:
 
 ![](https://i.imgur.com/4vRrzY3.png)
 
 From this, we can build an initial state estimator $G_e$ of $G$ as the observer of a reverse automaton, with the initial state being $X$. Given an observation $w \in E_o^*$:
 
 $$
-\delta_e(x_{e_0}, w) = \mathscr{L}(w^r)
+\delta_e(x_{e_0}, w) = \mathcal{L}(w^r)
 $$
 
 where $w^r$ is the reverse of $w$.

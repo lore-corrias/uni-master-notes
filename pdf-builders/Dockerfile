@@ -4,7 +4,7 @@ FROM docker.io/pandoc/extra:3.7
 COPY ./build-pdfs.sh /opt/build-pdfs.sh
 
 # Installing dependencies
-RUN tlmgr install pdfcol
+RUN tlmgr update --self && tlmgr install pdfcol
 
 # Installing the LUA Callout filter
 RUN wget -O /opt/callout.lua "https://raw.githubusercontent.com/zcysxy/obsidian-pandoc-filters/refs/heads/main/filters/callout.lua"

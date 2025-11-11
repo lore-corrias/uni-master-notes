@@ -12,7 +12,7 @@ Building a "_state specification_" consists in describing the desired behavior o
 > 
 > ![](https://i.imgur.com/TlWHzJ0.png)
 > 
-> States in $F = X \textbackslash L$ are called "_forbidden states_".
+> States in $F = X \setminus L$ are called "_forbidden states_".
 
 
 We can apply the same definition for a language:
@@ -23,7 +23,7 @@ We can apply the same definition for a language:
 > 
 > ![](https://i.imgur.com/kkivRnE.png)
 > 
-> Here, strings in $L^k = L(G) \cap K$ are called _allowed_ (generated and legal), while strings in $F^k = L(G) \textbackslash K$ are called _forbidden_ (generated, but illegal).
+> Here, strings in $L^k = L(G) \cap K$ are called _allowed_ (generated and legal), while strings in $F^k = L(G) \setminus K$ are called _forbidden_ (generated, but illegal).
 > 
 
 
@@ -46,7 +46,7 @@ Outside of legal and forbidden states, we can introduce the notion of **weakly f
 We can design a maximally permissive supervisor $S$ for a plant $G$ by following these steps:
 
 1. Compute the set of forbidden and weakly forbidden states of $G$: $F \cup F_{weak}$.
-2. If the initial state is forbidden/weakly forbidden, than _stop_, because there is no solution to the problem.
+2. If the initial state is forbidden/weakly forbidden, then _stop_, because there is no solution to the problem.
 3. Trim $G$ by removing all forbidden/weakly forbidden states and their input output arcs
 4. The resulting structure is $S$ and $S/G$.
 5. Optional - trim the resulting automata to remove unreachable states.
@@ -56,7 +56,7 @@ The resulting automata is thus:
 * Admissible, meaning it only disables controllable events
 * Correct, meaning no occurrence leads to a forbidden state
 * Maximally permissive
-* Coinciding with the close loop $S/G$.
+* Coinciding with the closed-loop system $S/G$.
 
 ## Control problem for language specifications
 
@@ -120,10 +120,3 @@ This automaton is also:
 * Admissible
 * Correct
 * Maximally permissive
-
-> [!info] :D
-> 
-> ho tante noci di cocco splendide, ti tiri ti ti, in fila per tre per tre per treeee.
-> Grandi, grosse, anche più grandi di teeeee!!!!
-
-

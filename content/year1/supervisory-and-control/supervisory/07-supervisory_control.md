@@ -123,7 +123,7 @@ Events not disabled by a supervisor are called "**enabled**".
 > 
 > Given a plant $G$ on an alphabet $E$, a _control input_ is a subset of events $\xi \subseteq E$:
 > * if $e \in \xi$, then $e$ is _enabled by the supervisor_
-> * if $e \not\in \xi$, then $e$ is _enabled_
+> * if $e \not\in \xi$, then $e$ is _disabled_
 > 
 > All set of inputs are denoted as $2^E$.
 

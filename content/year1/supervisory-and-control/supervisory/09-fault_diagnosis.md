@@ -59,7 +59,7 @@ This means that if we have a DFA $G$ that generates a string $s \in E^*$, an ext
 
 > [!info] Set of consistent strings and states
 > 
-> 1. A set of _string_ (succession of states) consistent with the observation of $w$: $S(w) = P^{-1}(w) \subseteq L(G)$
+> 1. A set of _strings_ (succession of states) consistent with the observation of $w$: $S(w) = P^{-1}(w) \subseteq L(G)$
 > 2. A set of _states_ consistent with the observation of the final word $w$
 
 Example, in the following automaton:
@@ -230,7 +230,7 @@ A DFA $G$ might also be not diagnosable. To understand how, consider a plant tha
 > A DFA $G$ with $E = E_o \cup E_{uo}$ and a set of fault events $E_f \subseteq E_{uo}$ is diagnosable if for all strings $ue_f \in L(G)$ such that $e_f \in E_f$ there exists a non-negative integer $n \in N$ such that:
 > 
 > $$
-> s = ue_fv \in L(G), \lvert v \rvert \geq n \rightarrow \not\exists s' \in L(G) \cup (E \textbackslash E_f)^* \text{ such that } P(s) = P(s')
+> s = ue_fv \in L(G), \lvert v \rvert \geq n \rightarrow \not\exists s' \in L(G) \cup (E \setminus E_f)^* \text{ such that } P(s) = P(s')
 > $$
 
 We want to be able to tell if a DFA $G$ is diagnosable or not. Before doing this, we need to introduce the notion of _uncertain cycle_:
