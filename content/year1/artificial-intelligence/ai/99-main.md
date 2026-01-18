@@ -4,8 +4,6 @@ author: Lorenzo Corrias
 uni: University of Cagliari
 prof: Giorgio Fumera
 header-includes: \usepackage[most]{tcolorbox}
-toc: "true"
 toc-own-page: "true"
 titlepage: "true"
-draft: true
 ---
