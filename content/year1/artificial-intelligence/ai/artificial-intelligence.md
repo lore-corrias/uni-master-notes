@@ -5,12 +5,14 @@ draft: false
 # Intelligence
 
 Multi-faceted property, which includes the capabilities of:
+
 * Thinking
 * Reasoning
 * Learning
 * Self-conciousness
 
 The first problem when talking about Artificial Intelligence, is that we can't even define correctly the term _intelligence_. To clear this confusion, it is best to look at the history of AI, which had contributions from many fields, such as:
+
 * Logic
 * Psychology
 * Neurophisiology
@@ -58,6 +60,7 @@ One important property of an intelligent agent is its ability to _solve problems
 An agent should then be able to provide a _solution_ with a _search_ process. These are called **search problems**
 
 Search problems typically have these characteristics:
+
 * **Static** vs **Dynamic**: if the environment changes or not
 * **Fully** vs **Partially** observable: if the current state of the problem is known entirely
 * **Discrete** vs **Continuous** set of actions
@@ -77,7 +80,8 @@ Search problems typically have these characteristics:
 * The goal test is a function that, given a state, tells us if we have reached a final state
 * The path cost is a metric used to indicate the _overall cost for a specific path_. It is usually calculated as the sum of the costs of each individual action, called **step cost**.
 
-> [!help]
+> [!help] Spiegazione
+>
 We can thus say that the _state space_ (i.e.: the set of all possible states), can be defined only using $SF$ and the first state. We can represent this as a _graph_ where a _path_ is a sequence of states connected through a sequence of actions
 
 An example is the route finding problem.
@@ -144,7 +148,9 @@ In order to represent a problem, we might define a C-like data structure with th
 | Depth       | An integer with the number of actions from the root to the node                     |
 
 > [!help]
+>
 > Some tips on the data structure:
+>
 > * Leaf nodes should be quickly accessible (use a linear data structure)
 > * You can implement the fringe as a queue, where newly generated notes are added to the queue in the order chosen by the strategy
 
@@ -193,8 +199,6 @@ Uninformed strategies typically explore the whole space state, until they find a
 
 The strategy of BFS is to expand the _shallowest_ node first (in case of parity, the node is chosen randomly). This basically means expanding first all of the nodes at depth 0, then at depth 1, and so on.
 
-![](https://media1.tenor.com/m/cAOJVb0QUKUAAAAd/bfs-algorithm.gif)
-
 If we follow the decision tree algorithm formalization, the steps to be followed are:
 
 1. Examine the fringe, stop if it is empty
@@ -204,12 +208,14 @@ If we follow the decision tree algorithm formalization, the steps to be followed
 5. Repeat from step 1
 
 > [!info] Properties
+>
 > The BFS search algorithm is:
 > 
 > * **Complete**: meaning a solution is always found
 > * **Non-optimal**: the solution found might not be the most efficient (given the fact that we are essentially brute-forcing the whole tree)
 
 > [!help] Missing part
+>
 > My notes here are missing the part about computational complexity (mainly because I think it's pretty trivial).
 > 
 > If you need it, you can find it in pages 56-63 of the first set of slides.
@@ -248,8 +254,6 @@ This means that the complexity is _exponential_ with respect to the depth of the
 ## Depth-first search (DFS)
 
 Basically the opposite to BFS, DFS expands first the _deepest_ node (still choosing at random in case of parity). This basically amounts to exploring a whole path first, changing it if the solution is not found.
-
-![](https://media1.tenor.com/m/-wQsNYyfJX0AAAAd/dfs-algorithm.gif)
 
 If we follow the decision tree algorithm formalization, the steps to be followed are:
 
@@ -292,6 +296,7 @@ So the total is:
    $$
 
 > [!info] Properties
+>
 > The DFS search algorithm is:
 > 
 > * **Complete**: meaning a solution is always found
@@ -304,22 +309,29 @@ So the total is:
 Some other notable strategies are:
 
 > [!info] Uniform-cost
+>
 > The uniform cost strategy expands the leaf node with the lowest path cost. It is:
+> 
 > * **Optimal**
 > * **Complete**
 
 > [!info] Depth-limited
+>
 > Like dfs, but has a depth limit $d$. allows finding solutions faster, but the depth of the shallowest one must be known.
+> 
 > * **Complete**, if $d$ is not smaller than the depth of the shallowest solution
 > * **Not optimal**
 
 > [!info] Iterative-deepening depth-first
+>
 > Repeat depth-limited search by increasing $D$ until a solution is found. Removes the limitation of depth-limited search.
+>
 > * **Complete**
 > * **Not optimal**
 
 > [!info] Bidirectional
 > Simultaneously expands from the start tree and the goal state, forward and backward, until the searches meet.
+>
 > * Requires reversible actions
 
 ### Avoiding repeated states
@@ -338,8 +350,9 @@ Strategies 2.2 and 3 are the best one when we have to remove the nodes with the 
 
 Contrarily to uninformed searches, informed strategies do have some information on which node to pick in a search strategies when two are more promising. Exploiting this advantage allows us to perform what is called a **best-first search**
 
-> [!info] Beast-first search
-> A **beast-first search** is performed by always picking the node of a search tree with the lowest value of a _node evaluation function_ $f(n)$, which corresponds to a more efficient path.
+> [!info] Best-first search
+>
+> A **best-first search** is performed by always picking the node of a search tree with the lowest value of a _node evaluation function_ $f(n)$, which corresponds to a more efficient path.
 
 We can easily adapt our best-first search to the _general tree-search algorithm_ by sorting the nodes in a fringe from lowest to highest in regards to the value of their function $f(n)$.
 
@@ -358,6 +371,7 @@ This is the simplest best-first strategy: we "_greedily_" (as we will see, this 
 > [!info] Properties
 > 
 > The greedy search has the following properties:
+>
 > * **Complete**
 > * **Non-optimal**
 > * **Exponential**
@@ -376,6 +390,7 @@ f(n) = h(n) + g(n)
 $$
 
 where:
+
  * $g(n)$ is a function to calculate the _path cost_ to the node $n$.
  * $h(n)$, instead, is an heuristic function that estimates the cost it takes to go from $n$ to the searched node.
 
@@ -388,6 +403,7 @@ Taking the example of the path searching problem of the Hungarian cities, we mig
 > [!info] Properties
 > 
 > The $A*$ has the following properties:
+>
 > * **Complete**
 > * **Optimal**. However, the heuristics must be _admissible_: meaning the $h$ function never overestimates the minimum cost to a solution.
 
@@ -461,6 +477,7 @@ where:
 _Logic_ is a discipline which traces back to the 4th century B.C. It is one of the most used tools in AI for _knowledge representation_ (with logical languages) and _reasoning_.
 
 > [!info] Possible definition of logic
+> 
 > **Logic** is the study of conditions under which an _argumentation_ (reasoning) is _correct_.
 
 Declarative statements are called **propositions**, which is a concept that is either _true_ or _false_. These can be either _simple_ or _complex_, whether they are made of multiple propositions or not. An example is the phrase "_Socrates is a man_", or "_A tennis match can be won or lost_".
@@ -579,6 +596,7 @@ The model checking algorithm verifies this by testing all possible combinations 
 > [!info] Properties of Model Checking
 > 
 > Model checking is:
+> 
 > * Sound: as it directly implements entailment
 > * Complete, since it works for any finite KB and any conclusion
 > * Has a computational complexity of $O(2^n)$. Since it is _exponential_, this inference algorithm is often considered unfeasable.
@@ -1069,6 +1087,7 @@ We will focus on the Bayesian Networks.
 > [!info] BN Structure
 > 
 > In a BN:
+> 
 > * Each node represents a _random variable_ of a PDF, associated with its distribution in the expression of the chain rule
 > * Each conditional dependency is represented by _oriented edges_, linking each variable with the ones on which its distribution is conditioned
 
@@ -1246,4 +1265,4 @@ For example,
 4. Now sample again and get $Rain = true$
 5. Set $w = w \times P(WetGrass = t|Sprinkler=t, Rain=t) = 0.099$ sampling $WetGrass = true$.
 
-This means that, among samples that accord to the evidence, we expect $9.9\%$ of samples to have $Rain=true, Cloudy=true$.
+This means that, among samples that accord to the evidence, we expect $9.9\%$ of samples to have $Rain=true, Cloudy=true$. 

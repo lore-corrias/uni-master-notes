@@ -159,6 +159,7 @@ Formally:
 > ```
 > 
 > where:
+>
 > * _condition_ is a boolean expression
 > * _class_
 
@@ -311,6 +312,7 @@ We can thus give a final definition of the _highest_ and _lowest_ possible discr
 > [!info] Highest discriminant capability
 > 
 > An attribute $x$ has the highest discriminant capability if, for each of its values $v$:
+> 
 > * $P(Y = y_v\  \mid \ X = v) = 1$, for one of the classes $y_v$
 > * $P(Y = y\  \mid \ X = v) = 0$, for every other class $y \neq y_v$
 
@@ -425,6 +427,7 @@ However, information gain, as a metric, presents an inherent contradiction. Say 
 > $$
 > 
 > where:
+>
 > * $v$ is the number of values
 > * $N$ is the number of samples arriving at the branch and split by $X$
 > * $N_i$ is the number of samples arriving at the branch edge created by the $i$-th value of $X$.
@@ -545,3 +548,331 @@ Which is the misclassification probability $P(h(X) \neq Y)$. Since we do not kno
 $$
 P(h(X) \neq Y) \approx \frac{\sum_{i=1}^n l(h(x_i),y_i)}{n}
 $$
+
+## Artificial Neural Network
+
+Artificial Neural Network are born from the rapid development of neuroanatomy and neurophisiology. The idea is to recreate a learning algorithm that simulates that of the human brain through _digital neurons_, which are now considered to be its fundamental building block.
+
+Human neurons are nerve cells that "_fire_" (emit an electrical signal) in response to a certain pattern. Their concatenation (humans have $\approx 10^{15}$ neurological connections in their body). The first proposal that imitates human neurons is that of the "_logical unit_" by McCulloch and Pits in $1943$. 
+
+> [!info] First prototype of neurons
+> 
+> They are composed of:
+> 
+> * $d$ input signals: $x_1, \dots, x_d \in \{0,1\}$, with a fictitious input $x_0=-1$
+> * $d$ connection weights: $w_0, \dots, w_d \in \mathbb{R}$, whose values are used to increase the "importance" of some inputs instead of others
+> * The final input is calculated as the weighted sums of all inputs:
+> 
+>   $$
+>  a(x,w) = \sum_{i=0}^d w_ix_i
+>  $$
+> 
+> * Finally, the output is a binary signal $y = \{0,1\} = g(a)$, where $g$ is named an "activation function":
+> 
+>  $$
+>  g(a) = \begin{cases} 1, & if\ a \geq 0 \\
+>  0, & if\ a < 0 \end{cases}
+>  $$
+> 
+> This function has an output of $1$ if the neuron "fires": i.e., if the input of the neuron exceeds a certain threshold, or $0$ if it doesn't.
+> 
+> ![](https://i.imgur.com/NqMM9zM.png)
+
+As with human ones, these prototype neurons can be chained together to form **the logical connectors** `AND` and `OR`:
+
+![](https://i.imgur.com/ZydILSO.png)
+
+This prototype neuron then became the "**perceptron**", which laid the basics for the foundations of _artificial neural networks_. The only difference with that formulated by McCulloch and Pitts' is that its inputs can consists of _real_ numbers, meaning that it can be used to distinguish between two **classes of input**, since the output is still binary.
+
+This, for example, would be a perceptron used to discriminate images of zeros and ones: given a 64px image, each pixel is a weighted input:
+
+![](https://i.imgur.com/WKWJXm0.png)
+
+Inputs can also be simplified before reaching the percetron using **feature extraction**: instead of using all pixels, we might just want to use two parameters, assuming that "zeros" are often more wide than "ones":
+
+1. The number of pixels whose value exceeds a threshold, divided by 64
+2. The number of image columns containing at least one foreground pixel, divided by 8
+
+![](https://i.imgur.com/rEcsdnd.png)
+
+### Learning Algorithms for Perceptron
+
+Since we are interested in creating a learning algorithm, our goal would be to train one to be able to give the best weights for all inputs. More specifically, we want to create a learning function that minimises the number of misclassifications on a training set $T$. We can start by applying _random weights_, and then slowly adjust them to obtain better results at each iteration.
+
+In order to better visualize this process, we can take advantage of the definition of our _activation function_ being:
+
+$$
+y(a) = \begin{cases}
+1, & if\ \sum_{i=0}^d w_ix_i \geq 0 \\
+0, & if\ \sum_{i=0}^d w_ix_i < 0 \end{cases}\ \ with\ x_0=-1
+$$
+
+Graphically, this can be written as an hyperplane with equation $\sum_{i=0}^d w_ix_i=0$. As an example, if we have two attributes ($d=2$) with values $x \in [0,1]$, we might have a graph like this (the threshold line depends, of course, on the activation function):
+
+![](https://i.imgur.com/TYA8hwG.png)
+
+
+Where the arrow points to the activation region. The black and withe circles correspond to the inputs of the neuron: if we had a perfect classification functions, they would be perfectly divided into the two regions (whites with $1$ and blacks with $0$), but here we have some misclassifications. We can actually **measure** the "misclassification-ness" of an input $x$ by measuring its distance from $h$ (the line). In formulas, having:
+
+$$
+h = w_1x_1 + w_2x_2 + \dots + w_dx_d - w_0 = 0
+$$
+
+and
+
+$$
+x = (x_1,\dots,x_d)
+$$
+
+the absolute value of the input $a(x,w)$:
+
+$$
+|a(x,w)| = |w_1x_1 + w_2x_2 + \dots + w_dx_d - w_0|
+$$
+
+is proportional to the distance of $x$ to $h$. This measurement is useful, because it gives us an initial metric for the definition of an _error function_.
+
+> [!info] Error function for a perceptron learning algorithm
+> 
+> Given a misclassified $x$ with weights $w = w_0, \dots, w_d$, the error function $E$ is defined as:
+> 
+> $$
+> E(x,w) = -t \times a(x,w) = -t \times (w_1x_1 + w_2x_2 + \dots + w_dx_d - w_0)
+> $$
+> 
+> where $t = 1$ if we want $x$ to be $1$, and $-1$ if we want $x$ to be $0$.
+
+This way, $E(x,w) > 0$ if $x$ is misclassified. Since $E$ is a two-variables function, we can represent it with a 3-dimensional graph:
+
+![](https://i.imgur.com/NhyR3ZF.png)
+
+We can visualize the act of "reducing the error" as "finding the lowest point of this graph". This approach is called "**gradient descent**", and is shown in the photo as the arrow pointing to the **absolute minimum** of $E$. In formulas:
+
+$$
+w_i = w_i - \eta\frac{\partial E(x,w)}{\partial w_i},\ i = 0, \dots, d
+$$
+
+where:
+
+* $\frac{\partial E(x,w)}{\partial w_i}$ is the _partial derivative_ of the error function with respect to the weight, $w_i$. Graphically, this correspond to the "**steepness**" and the "**direction**" in which the error increases. Since we want to find the opposite (the region where $E$ is minimum), we subtract it from our current position, which is $w_i$. The partial derivative of the error function is equal to:
+  
+  $$
+   \frac{\partial E(x,w)}{\partial w_i} = \begin{cases} -t \times x_i, & i = 1, \dots, d \\
+   t, & i = 0
+	\end{cases}
+   $$
+
+  meaning that the update rule is:
+  
+  $$
+   \begin{cases} w_i = w_i + \eta x_it, & i=1,\dots,d \\ w_0 = w_0 - \eta t \end{cases} 
+   $$
+  
+* $\eta$ is an arbitrary and positive constant called **learning rate**. It works as a weight to the partial derivative: the higher its value, the more significant are the adjustments of the weights at each iteration.
+
+![](https://i.imgur.com/D7l5mvj.png)
+
+Since one iteration might not be enough to fix all weights simultaneously, the learning algorithm is called repeatedly. Each execution of the algorithm is called "**epoch**".
+
+In pseudocode:
+
+![](https://i.imgur.com/QIZ3JVk.png)
+
+### Convergence
+
+We have a way to tell if the learning algorithm of a perceptron converges. Consider this case as an example:
+
+![](https://i.imgur.com/a5jB2w6.png)
+
+here, the two classes of inputs can be clearly divided in two by a line. This classes are called "**linearly separable**", and it is guaranteed that, for any $\eta > 0$, if the classes of our algorithm are separable, then it always converges to a consistent solution after a number of epochs. We usually choose $\eta = 1$ in these cases. However, in this case, the classes are **not** linearly separable:
+
+![](https://i.imgur.com/757wm0b.png)
+
+Since a consistent solution cannot be found, the algorithm is usually "manually" stopped after a number of iterations or, generally, after reaching a **stopping condition**, to prevent it from oscillating around a certain value.
+
+### Perceptron limitations and Networks
+
+The principle of linear separability highlights a bigger problem with perceptron, that is the impossibility of representing certain binary functions, like a `XOR`. Here, for example, tracing a line that separates linearly the input classes will always leave out $1/4$ of inputs:
+
+![](https://i.imgur.com/DIFXitv.png)
+
+These problems can be solved by "chaining" perceptrons in "**Artificial Neural Networks (ANN)**". These are networks made up of some input neurons, any number of "_hidden_" internal units and some _recurrent connections_:
+
+![](https://i.imgur.com/PLiP8sY.png)
+
+For example, we can use this network to represent a `XOR` function:
+
+![](https://i.imgur.com/ghak4jh.png)
+
+One issue with perceptron networks is the calculation of their **error function**: we can observe the output of the final output units with:
+
+$$
+E(x,w) = -t \times a(x,w)
+$$
+
+but there is no way to measure the value of $E$ for hidden inputs:
+
+![](https://i.imgur.com/U70GKm8.png)
+
+This means that we cannot use the minimization of the error function algorithm. Also, how are we supposed to build a perceptron networks? Would it be suitable to have a second learning algorithm specific for this task?
+
+These limitations resulted in a drop of interest in ANNs, which was reignited in the 1980s thanks to the following solution:
+
+1. We do not create learning algorithms to design networks: instead, we use some **predefined architectures** that work well for many problems
+2. We devise effective learning algorithms for:
+	1. Specific architectures $\to$ **feed-forward** networks
+	2. Continuous activation functions, that allows us to use the gradient descent for hidden inputs
+
+For the point $2.2$, we are particularly interested in two different functions:
+
+1. The **logistic function**: $g(a) = \frac{1}{1+e^{-a}} \in (0,1)$
+   
+   ![](https://i.imgur.com/aL1zA6o.png)
+
+2. The **hyperbolic tangent**: $g(a) = tanh(a) = \frac{e^a-e^{-a}}{e^a+e^{-a}} \in (-1,1)$
+   
+   ![](https://i.imgur.com/d601zEJ.png)
+
+For point $1$, instead, we will focus on the most used architecture, called "**feed-forward multi-layer**" (FF-ML): we arrange unit into layers, with an input and an output one, and one or more hidden ones, having no recurrent connections: each unit receives an input from a unit of a previous layer.
+
+![](https://i.imgur.com/M9fwkQs.png)
+
+We can actually divide FF-ML network types depending on our problem:
+
+* For **two-class** problems, we have a single output unit whose desired output $t \in \{0,+1\}$ or $t \in \{-1,+1\}$. For new instances of $x$ after training, we define the label as $+1$ if $y(x) \geq 0.5$ if using the logistic function, or if $y(x) \geq 0$ with the tanh function. Otherwise, we set $0$ or $-1$.
+* For **multi-class** problems, we have $m$ output units for $m$ classes with $t_k = +1$ and $t_i \in \{0,-1\}$ for $i \neq k$. For new instances of $x$ after training, we define the label $k^\ast$ as the one corresponding to the **highest** output value: $k^* = \text{arg max}_{k=1,\dots,m} y_k(x)$.
+
+FF-ML networks can represent:
+
+* **Boolean functions**, with one hidden layer
+* **Bounded and continuous functions**, with one hidden layer and some approximation error
+* **Bounded and discontinuous functions**, with two hidden layer and some approximation error
+
+However, this often requires an exponential number of hidden units with respect to the number of inputs. Also, since the target function is normally unknown, a "trial-and-error" approach is used when designing FF-ML networks, starting from a "simple" one and adding complexity if the generalization capability is not enough.
+
+### Back-propagation
+
+For FF-ML ANNs, a popular learning algorithm is "**back-propagation**". We still have to define both an _error function_ and a "_gradient descent-like_" procedure to minimize the error functions iteratively.
+
+* The most used error function for _regression problems_ is the **squared error**: given $y=(y_1, \dots, y_m)$ the output values and $t=(t_1, \dots, t_m)$ the vector of desired outputs, it is calculated as:
+
+	$$
+	E(y,t) = \frac{1}{2} \sum_{k=1}^m (t_k-y_k)^2
+	$$
+
+* For _classification problems_, instead, we use the **cross-entropy**:
+
+	$$
+	E(y,t) = \begin{cases} -(t \log y + (1-t) \log(1-y)), & \text{for } m = 2 \text{ classes} \\
+	-\sum_{k=1}^m t_k \log y_k & \text{for } m>2 \text{ classes} \end{cases}
+	$$
+
+> [!info] Back propagation
+> 
+> Given $w$ as the vector with the connection weights, the goal of this algorithm is to find the vector $w$ that minimises the error function over the whole $T$:
+>
+> $$
+> w^\ast = \text{arg min}_w \sum_{(x,t)\in T}E(y,t)
+> $$
+> 
+> where $y$ is a function of $x$ and $w$.
+
+
+To do this, we still use _gradient-descent_: to simplify the explanation, we consider a network with only one $w$, but the general formula holds:
+
+$$
+w  = w - \eta \frac{\partial E(y,t)}{\partial w} \text{ for each } w \in w
+$$
+
+In order to do this, we first have to compute the output of a network $y$ given the current weights. This operation is called "**forward propagation**":
+
+![](https://i.imgur.com/cDNGJoM.png)
+
+This can be done by computing, for every node, its input $a$ and its output $y=g(a)$, which will be used as the input of a second node, and so on. 
+
+Once we have computed $y$, we can compute the partial derivatives of the error function starting from the weights of the output and proceeding backwards, hence the name "**back-propagation**". We can do this because the final output $y$ can be rewritten as a _composition_ of the output of the previous nodes:
+
+$$
+E(y,t) = E(g(a), t) = E(g(\sum_k w_kx_k), t)
+$$
+
+And we can thus compute the partial derivative using the chain rule:
+
+$$
+\frac{\partial E}{\partial w_k} = \frac{\partial E}{\partial y} \frac{\partial y}{\partial a} \frac{\partial a}{\partial w_k}
+$$
+
+![](https://i.imgur.com/WXX6IGc.png)
+
+For example, if $E(y,t) = \frac{1}{2}(t-y)^2$ and we use $g(a) = (1+e^{-a})^{-1}$ as the activation function, then the singular derivatives can be computed like this:
+
+![](https://i.imgur.com/GCHHEAS.png)
+
+While this reasoning is valid for output units, we need to adapt it for hidden ones. We can start by reasoning that the error function for any hidden unit at the $l$-th layer $u^l_j$ depends on it through its output, say $y_j$. However, this output becomes, in turn, the input of unit $u^{l+1}_i$ in the next layer:
+
+![](https://i.imgur.com/uITtFGu.png)
+
+This means that we can adapt the partial derivative for it using the same chain rule, like this:
+
+$$
+\frac{\partial E}{\partial w_k} = \frac{\partial E}{\partial y_j}\frac{\partial y_j}{\partial a_j}\frac{\partial a_j}{\partial w_k}
+$$
+
+We already calculated a value for the last two terms (respectively, $y_j(1-y_j)$ and $x_k$), but what about $\frac{\partial E}{\partial y_j}$? We know that $E(y,t)$ depends on $y_j$ through the output of each unit of the next layer: $u_i^{l+1}$, meaning we can apply the chain rule again:
+
+$$
+\frac{\partial E}{\partial y_j} = \sum_{u_i^{l+1}} \frac{\partial E}{\partial y_i}\frac{\partial y_i}{\partial y_j}
+$$
+
+we can also rewrite the second term with the chain rule (again):
+
+$$
+\frac{\partial y_i}{\partial y_j} = \frac{\partial y_i}{\partial a_i} \frac{\partial a_i}{\partial y_j} = y_i(1-y_i)w_{ij}
+$$
+
+To finally get the following:
+
+$$
+\frac{\partial E}{\partial w_k} = [\sum_{u_i^{l+1}} \frac{\partial E}{\partial y_i} y_i(1-y_i) w_{ij}] y_j(1-y_j)x_k
+$$
+
+![](https://i.imgur.com/FIjaf03.png)
+
+Or, in pseudocode:
+
+![](https://i.imgur.com/UrUJ7xN.png)
+
+One problem with back-propagation is that of **local minima**: minimum of the functions which prevent it from reaching the global minimum. We usually either detect this kind of situations by detecting plateaus: either stopping after a certain number of iterations or detecting when the function remains constant even after some iterations. However, we can also prevent the error of local minima by running the same function with different randomized starting weights, to then choose the ones with the minimum training error associated to them:
+
+![](https://i.imgur.com/lFNuAgt.png)
+
+It is also usually a good idea to _normalize_ values, for example by scaling them inside the range $[0,1]$:
+
+$$
+x_i' = \frac{x_i-x_{i,min}}{x_{i,max}-x_{i,min}}\ \ i=1,\dots,d
+$$
+
+### Over-fitting
+
+ANNs can also incur in over-fitting. To mitigate the issue, we can either:
+
+* Choose the correct network through the trial-and-error method described above
+* Set constraints on network weights by adding _penalty terms_ to the error function, which favour "simpler" decision boundaries (e.g., avoid **too large** weights in absolute value). This is called "**regularisation**".
+* Monitor the error function through the epochs on a distinct set than the training ones. After some epochs, while the training error decreases the validation one could increase: this is a symptom of over-fitting.
+
+### ANN vs DT
+
+The main distinctions between ANNs and DTs are:
+
+* Their _generalization capabilities_: ANNs are more robust to noise than DT and achieve generally larger generalization capabilities.
+* Their _interpretability_ (the possibility for a user to understand the output) is usually better for DTs, since ANNs are "black boxes" (the output depends on all input values).
+
+### Deep Neural Networks
+
+A recent extension of ANNs that consist in ANNs with **many** hidden layers, with some ad hoc activation functions and modifications of BP algorithm.
+
+![](https://i.imgur.com/1hSTTj3.png)
+
+They are often used for computer vision tasks (convolutional neural network, CNN).
+
+Continue the topic on http://neuralnetworksanddeeplearning.com/
