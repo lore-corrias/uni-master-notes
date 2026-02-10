@@ -136,7 +136,7 @@ In this case, for example, the better classifier is the _left one_, as it is sim
 
 > [!info] Overfitting
 > 
-A typical issue with classifier is the _over-fitting_: this happens when we have a _complex_ hypothesis space, and we have to trade some complexity of the classifier with consistency. 
+> A typical issue with classifier is the _over-fitting_: this happens when we have a _complex_ hypothesis space, and we have to trade some complexity of the classifier with consistency. 
 >
 > An example of _over-fitting_ in the real word is a student that prepares for an exam by only learning the exact responses of a test, instead of developing a general framework for answering unknown cases.
 
@@ -178,7 +178,7 @@ $$
 
 We might thus have a decision tree like this one:
 
-![](https://i.imgur.com/G8Yt8b9.png){width=70%}
+![](https://i.imgur.com/G8Yt8b9.png)
 
 This basically reads, for example: "if the term $x_2$ is not present, but $x_5$ is, then the mail is legitimate. If $x_5$ is not present, instead, it is a spam mail". We might also write this as:
 
@@ -236,11 +236,11 @@ If we only care about _consistency with the training data_, we can build the eas
 
 This basically translates to the following example. Say that we have the following $T$:
 
-![](https://i.imgur.com/zDwq7cJ.png){width=60%}
+![](https://i.imgur.com/zDwq7cJ.png)
 
 Starting from $m_1$, we can build the following _partial_ DT:
 
-![](https://i.imgur.com/EloadLh.png){width=60%}
+![](https://i.imgur.com/EloadLh.png)
 
 > [!help]
 > 
@@ -254,7 +254,7 @@ The **generalization capabilities** of such an algorithm are very limited, as it
 
 ### A better algorithm: ID3
 
-Better algorithms than the naive one can be built bu constructing a "reasonably small" and consistent DT by using some low-complexity heuristics that basically favor _smaller DTs_.
+Better algorithms than the naive one can be built by constructing a "reasonably small" and consistent DT by using some low-complexity heuristics that basically favor _smaller DTs_.
 
 The key intuition behind such an algorithm named ID3 is that we can build a consistent DT using a top-down approach (from root to leaves) by, when reaching an edge, associating the inner node to be added with the most "**discriminant**" attribute for those example.
 
@@ -322,7 +322,7 @@ We can thus give a final definition of the _highest_ and _lowest_ possible discr
 > $$
 > P(Y = y\  \mid \ X = v) = \frac{1}{C}\text{, for each } y
 > $$
-> where $C$ is the number of classes
+> where $C$ is the number of classes. This is basically equivalent to saying that an attribute splits $n$ values into $C$ different classes, with only one value for each class.
 
 The measure of _uncertainty_ inside a distribution can be measured by the **entropy** of a random variable $Y$. If the variable is discrete and the domain is finite, it is calculated as:
 
@@ -350,7 +350,7 @@ The _conditional_ entropy measures the amount of uncertainty about $Y$ when $X$ 
 $$
 H(Y \mid X) = \sum_v{P(X=v)H(Y \mid X=v)}
 $$
-so, we can $H(Y \mid X=v)$ to
+so, we can write $H(Y \mid X=v)$ as
 
 $$
 H(Y \mid x=v) = - \sum_{i=1}^CP(Y=y_i \mid X=v) \log_2{P(Y = y_1 \mid X=v)})
@@ -416,9 +416,7 @@ $$
 
 According to **Information theory**, the entropy of $H(Y)$ is measured in bits because it amounts to the measurement of the "missing" information on its value. This means that calculating $H(Y)$ equals to asking the question "_What is the missing information needed to find the class label of a random instance?_". A similar reasoning can be done with $H(Y|X)$, simply by taking into account the measurement of the entropy _after_ observing $X$.
 
-This can be rewritten as saying that identifying the label with the smallest entropy amounts to maximizing the **information gain**: $H(Y) - H(Y|X)$.
-
-However, information gain, as a metric, presents an inherent contradiction. Say that you have a node that is totally irrelevant to the class, like a DT that wants to determine the status of someone $Y=\{healthy,ill\}$, but also considers its birth date $d$, which is irrelevant. The resulting conditional entropy $H(Y|D) = 0$ would generate a consistent DT, but with no generalization capability. To surpass this problem, we use a variant of information gain named "**Gain ratio**":
+This can be rewritten as saying that identifying the label with the smallest entropy amounts to maximizing the **information gain**: $H(Y) - H(Y|X)$. However, information gain, as a metric, presents an inherent contradiction. Say that you have a node that is totally irrelevant to the class, like a DT that wants to determine the status of someone $Y=\{healthy,ill\}$, but also considers its birth date $d$, which is irrelevant. The resulting conditional entropy $H(Y|D) = 0$ would generate a consistent DT, but with no generalization capability. To surpass this problem, we use a variant of information gain named "**Gain ratio**":
 
 > [!info] Gain ratio
 > 

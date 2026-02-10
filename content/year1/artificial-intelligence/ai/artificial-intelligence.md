@@ -29,13 +29,17 @@ Generally, the goal of the AI field is to build machines that are _capable of pe
 The first attempts at building AI systems was based on trying to reproduce human reasoning. One example might be that of building _chess engines_: tools like this require _human instructions_ to build deterministic algorithms based on human logic.
 
 The main problem of this strategy are, mainly:
+
 * The lack of _computational complexity_: the total number of chess moves is higher than that of atoms in the observable universe.
 * The lack of _background knowledge_. As an example, consider the phrases:
 	* _John threw the ball to the window and broke **it**_
 	* _John threw the glass to the wall and broke **it**_
-	what does **it** refer to in these phrases? Language processing relies, generally, on our **background knowledge**: we assume that in the first phrase the pronoun refers to _window_ as a ball can crash a window, but in the second case we link **it** to _glass_, as a wall hardly breaks from a glass crashing to it.
+	what does **it** refer to in these phrases?
+	
+Language processing relies, generally, on our **background knowledge**: we assume that in the first phrase the pronoun refers to _window_ as a ball can crash a window, but in the second case we link **it** to _glass_, as a wall hardly breaks from a glass crashing to it.
 
 Eventually, AI evolved to handle more complex tasks passing from the _knowledge-driven_ approach to the _data-driven_ approach. Today, this strategy advanced research so that we today have:
+
 * Machine learning - from the 2000s
 * Deep Neural Networks - from the 2010s
 * Generative Adversarial Networks and LLMs - from the 2020s
@@ -184,6 +188,7 @@ There are two main ways of measuring the performance of a tree-search algorithm:
 # Uninformed strategies
 
 > [!info] Uninformed Strategy
+>
 > A search strategy is called _uninformed_ when the algorithm does not have available some information to deduce which solution is _better_ than another.
 
 Uninformed strategies typically explore the whole space state, until they find a solution. Some of these strategies are:
@@ -206,6 +211,10 @@ If we follow the decision tree algorithm formalization, the steps to be followed
 3. Examine the selected state, stop if it is a goal state
 4. Remove the selected node from the fringe and expand it, generating the child nodes to be added at the end of the fringe
 5. Repeat from step 1
+
+> [!help] Graphical Representation
+> 
+> See [here](https://upload.wikimedia.org/wikipedia/commons/4/46/Animated_BFS.gif) for a graphical visualization of the algorithm.
 
 > [!info] Properties
 >
@@ -273,7 +282,6 @@ To calculate the computational complexity of DFS, we make the following assumpti
 
 So, we have the following table:
 
-
 | Depth | Generated nodes | Stored nodes                      |
 | ----- | --------------- | --------------------------------- |
 | 0     | 1               | 1                                 |
@@ -303,6 +311,9 @@ So the total is:
 > * **Non-optimal**: the solution found might not be the most efficient (given the fact that we are essentially brute-forcing the whole tree)
 > * **Exponential** time complexity, but **linear** space complexity.
 
+> [!help] Graphical Representation
+> 
+> See [here](https://en.wikipedia.org/wiki/Depth-first_search#/media/File:Depth-First-Search.gif) for a graphical visualization of the algorithm.
 
 ### Other strategies
 
@@ -338,13 +349,13 @@ Some other notable strategies are:
 
 One common problem in search algorithms is the presence of _loops_. To avoid repeated states we can adopt multiple solutions:
 
-1. If we can do reversible actions, once we find a repeated node we can discarded and go back to the previous state.
-2. If we find a node that has some children that we already explored, we can just discard it we can do this: if we find nodes 
-	1. In the path from the root to $n$
-	2. In the current search tree, if we stored all nodes
+1. If we can do reversible actions, once we find a repeated node we can discard it and go back to the previous state.
+2. If we find a node that has some children that we already explored, we can just discard it. We can do this if we find nodes either
+	* In the path from the root to $n$
+	* In the current search tree, if we stored all nodes
 3. If we find any child node with an already generated state, we can discard it.
 
-Strategies 2.2 and 3 are the best one when we have to remove the nodes with the highest path cost.
+Strategies 2.2 and 3 are the best ones when we have to remove the nodes with the highest path cost.
 
 # Informed strategies
 
@@ -383,7 +394,7 @@ The most relevant search strategies, invented in the '60s.
 
 It is based on an improvement of the greedy search. The main problem of the latter is its disregard for the cost of the already taken functions to go from the root to the current node $n$. To avoid this problem, $A^\ast$ uses a secondary function $g(n)$, which calculates the total path cost to go from the root node to $n$. This is also, of course, a rough estimation.
 
-We can thus define a node evaluation function. used to estimate the minimum path cost to a solution
+We can thus define a node evaluation function, used to estimate the minimum path cost to a solution
 
 $$
 f(n) = h(n) + g(n)
@@ -445,13 +456,13 @@ The lower the value of $b^\ast$, the better. Its value is usually evaluated _emp
 
 # Knowledge Representation and KBS
 
-The goal of AI agents is to solve a specific instance of a problem. However, human beings use several innate characteristics of our brains to elaborate a solution strategy, including some high-level functions, including **abstraction**.
+The goal of AI agents is to solve a specific instance of a problem. However, human beings use several innate characteristics of our brains to elaborate a solution strategy, including some high-level functions, like **abstraction**.
 
 Take, for example, the following game, named "the wumpus world":
 
 ![](https://i.imgur.com/chvkPwo.png)
 
-The player's goal is to start from $(1,1)$, get the goal and go back to the starting points. The rules are:
+The player's goal is to start from $(1,1)$, get the gold and go back to the starting points. The rules are:
 
 * You get the content of a room entering it
 * You can infer pits and wumpus, respectively, by the adjacent cells' breeze and stench. Going into either is game-over.
@@ -519,9 +530,9 @@ This process is also called **logical inference**: an algorithm which derives co
 
 > [!info] Properties
 > 
-> Inference algorithms are:
+> Inference algorithms can be classified as:
 > 
-> 1. **Sound**: the sentences are derived only through the entailment of premises. This means that if premises are true, then all conclusions are true as well.
+> 1. **Sound**: if the sentences are derived only through the entailment of premises. This means that if premises are true, then all conclusions are true as well.
 >    $$
 >    \text{if } KB \vdash_A \alpha \text{ then } KB \models \alpha
 >   $$
@@ -566,7 +577,7 @@ In atomic sentences, we either have:
 * $False$, which is false for all models
 * The value of a propositional symbol, which must be specified in the model
 
-While for complex sentences, we determine their truth value bu recursively evaluating the simpler atomic sentences forming them and the _truth tables_ of their logical connectors:
+While for complex sentences, we determine their truth value by recursively evaluating the simpler atomic sentences forming them and the _truth tables_ of their logical connectors:
 
 ![](https://i.imgur.com/GHtR8JU.png)
 
@@ -576,7 +587,7 @@ We can thus summarize all possible models for a proposition in a table:
 
 > [!note] A note on the implication operator
 > 
-> In a natural language, we understand that "if P then Q" is the "implication" operator. However, in logical sentences we rather say "if $P$ is true, then $Q$ is also true, otherwise **I don't know**". This represent the concept of implication being a "**sufficient**, but not **necessary** condition", meaning that $Q$ might be true even if $P$ is false.
+> In a natural language, we understand that "if P then Q" is the "implication" operator. However, in logical sentences we rather say "if $P$ is true, then $Q$ is also true, otherwise **I don't know**". This represents the concept of implication being a "**sufficient**, but not **necessary** condition", meaning that $Q$ might be true even if $P$ is false.
 
 ### Inference
 
@@ -601,7 +612,7 @@ The model checking algorithm verifies this by testing all possible combinations 
 > * Complete, since it works for any finite KB and any conclusion
 > * Has a computational complexity of $O(2^n)$. Since it is _exponential_, this inference algorithm is often considered unfeasable.
 
-We can limit the computational complexity problem of model checking by introducing "_Inference Rules_", which represent a standard pattern of inference.
+This algorithm basically amounts to "bruteforcing" all possible combinations to check if all of them are valid. We can limit the computational complexity problem of model checking by introducing "_Inference Rules_", which represent a standard pattern of inference.
 
 We define a simple reasoning step whose soundness can be easily proven. This step can then be applied to a specific structure to derive a conclusion, represented as:
 
@@ -613,14 +624,14 @@ These are some example of common inference rules which are commonly used when de
 
 ![](https://i.imgur.com/GVgKt92.png)
 
-All of these rules can be proven to be sound by using truth tables, which are relatively small.
+All of these rules can be proven to be sound by using truth tables (which means, through model checking), which are relatively small.
 
-As an example, consider a program interested in winning a wumpus game configuration that wants to prove that $KB \models \lnot P_{1,2}$ (i.e., that the square 1,2 has no pit) knowing that
+As an example, consider a program interested in winning a wumpus game configuration that wants to prove that $KB \models \lnot P_{1,2}$ (i.e., that the square 1,2 has no pit) knowing that:
 
 1. $\lnot B_{1,1}$
 2. $\lnot B_{1,1} \implies \lnot P_{1,2} \land \lnot P_{2,1}$
 
-Meaning that we know that square (1,1) (the starting one) has no pit. By applying _modus ponens_ to $(1)$ and $(2)$ and _and elimination_ we get $\lnot P_{1,2}$, concluding that room $(1,2)$ is safe.
+Meaning that we know that square (1,1) (the starting one) has no pit. By applying _modus ponens_ to $(1)$ and $(2)$ and _and elimination_ we get $\lnot P_{1,2} \land \lnot P_{2,1}$, which also means that $\lnot P_{1,2}$, concluding that room $(1,2)$ is safe.
 
 The application of inference rules on a KB can be reduced to the following algorithm:
 
@@ -634,7 +645,7 @@ until new sentences have been derived, and a is not present in KB
 Once the procedure has ended, we either:
 
 * Get $\alpha$ in the final KB, and provided that $A$ is sound we can conclude that $KB \models \alpha$
-* Not get $\alpha$ in the final KB, and provided that $A$ is complete we can conclude that $KB \not \models \alpha$
+* Don't get $\alpha$ in the final KB, and provided that $A$ is complete we can conclude that $KB \not \models \alpha$
 
 The most important properties that need to be verified for an inference algorithm are thus:
 
@@ -681,7 +692,7 @@ $$
 \frac{\alpha_1 \lor \alpha_2 \lor \dots \lor \alpha_m,\ \ \ \beta_1 \lor \beta_2 \lor \dots \lor \beta_n}{\alpha_1 \lor \dots \lor \alpha_{p-1} \lor \alpha_{p+1} \lor \dots \lor \alpha_m \lor \beta_1 \lor \dots \lor \beta_{q-1} \lor \beta_{q+1} \lor \dots \lor \beta_n}
 $$
 
-Now, since $\alpha_p = \lnot \alpha_q$, one of the two must be true, while the other is false. This means that the _disjunction_ of the literals of the corresponding clause must be true.
+Now, since $\alpha_p = \lnot \alpha_q$, one of the two must be true, while the other is false. This means that the _disjunction_ of the literals of the corresponding clause must be true (since `true OR false OR x = true`).
 
 For example, the rule for the Wumpus game:
 
@@ -707,6 +718,70 @@ In pseudocode:
 ![](https://i.imgur.com/i4NbWhF.png)
 
 Checking satisfiability (non-contradiction), however, is an `NP-Complete` problem, meaning that its computational complexity is _exponential_. In order to improve execution efficiency, we can disregard clauses containing complementary literals (true by definition).
+
+> [!help] Exercise
+> 
+> Consider a robot, powered by a battery, capable of moving objects that are liftable. Its knowledge baseincludes the fact that, if its battery is charged, and it tries to move a liftable object, then that object will move. It also has sensors that tell it whether its battery is charged or not, and whether an object it is trying to lift does or does not move. Assume that, after the robot encounters an object and tries to lift it, its sensors indicate that that object does not move, and that its battery is charged. Intuitively, this implies that the object is not liftable.
+> 
+> 1. Represent the robot’s knowledge (both the knowledge base and the sensory information) in propositional logic.
+> 2. Prove that the object is not liftable, using the resolution inference rule.
+>    
+> We can represent the KB with three symbols:
+> 
+> 1. `BATTERY`: which represents whether the battery is loaded or not
+> 2. `LIFTABLE`: which represents whether the object is liftable or not
+> 3. `MOVES`: which represents whether the object was moved or not
+> 
+> We know that an object moves if it is liftable and the battery is charged: we can rewrite this phrase with the following proposition:
+> 
+> $$
+> BATTERY \land LIFTABLE \implies MOVES
+> $$
+> 
+> We also know from the text that the robot has its battery charged, but the object did not move. We can thus write our final KB as:
+>
+> $$
+> KB = \begin{cases}
+> BATTERY \land LIFTABLE \implies MOVES \\
+> BATTERY \\
+> \lnot MOVES
+> \end{cases}
+> $$
+> 
+> To use resolution, we need to eliminate implications using the rule $(P \implies Q) = (\lnot P \lor Q)$. In our case, we also need to move the negation in via $\lnot(P \land Q) \implies \lnot P \lor \lnot Q$. We also want to prove that the object is **not** liftable: since resolution operates through proofs by absurd, we need to add the negation of this proposition to the KB ($\lnot LIFTABLE$). Applying these steps, we have:
+> 
+> $$
+> KB = \begin{cases}
+> \lnot BATTERY \lor \lnot LIFTABLE \lor MOVES \\
+> BATTERY \\
+> \lnot MOVES \\
+> LIFTABLE
+> \end{cases}
+> $$
+> 
+> Now we need to apply resolution to obtain a contradiction and demonstrate that $\lnot LIFTABLE$ is true. To do this, we apply both $(1)$ and $(2)$ to obtain:
+> 
+> $$
+> KB = \begin{cases}
+> \lnot LIFTABLE \lor MOVES \\
+> BATTERY \\
+> \lnot MOVES \\
+> LIFTABLE
+> \end{cases}
+> $$
+> 
+> Then, form here, we apply $(1)$ and $(3)$:
+> 
+> $$
+> KB = \begin{cases}
+> \lnot LIFTABLE \\
+> BATTERY \\
+> \lnot MOVES \\
+> LIFTABLE
+> \end{cases}
+> $$
+> 
+> Notice how $(1)$ and $(4)$ contradict each other. Since we can't have two opposite propositions in our KB, it must follow that $\lnot LIFTABLE$ is true.
 
 ### Horn Clauses
 
@@ -802,7 +877,7 @@ $$
 $$
 becomes "there is someone who is loved by everyone".
 
-Qualifiers can also be connected through negations: saying $\lnot (\forall x\ \alpha(x))$ is the same as $\lnot (\exists x\ \lnot \alpha(x))$
+Qualifiers can also be connected through negations: saying $\forall x\ \alpha(x)$ is the same as $\lnot (\exists x\ \lnot \alpha(x))$
 
 > [!note] Terms and Predicates
 > 
@@ -1006,14 +1081,14 @@ $$
 P(Cavity|Toothache,Catch)
 $$
 
-Diagnostic knowledge, however, is generally harder to obtain than causal one. However, in order to solve this problem, we can take advantages of **Bayes' rule**:
+Diagnostic knowledge, however, is generally harder to obtain than causal one. In order to overcome this limitation, we can take advantages of **Bayes' rule**:
 
 > [!info] Bayes' Rule
 > 
 > Given two equivalent expressions:
 > 
 > $$
-> P(X,Y) = P(X|Y)P(Y)
+> P(X,Y) = P(X|Y)P(Y), \text{ and, }
 > P(Y,X) = P(Y|X)P(X)
 > $$
 > 
@@ -1099,7 +1174,7 @@ BNs are always _fully connected_ DAGs.
 
 We saw that we are able to represent a joint PDF through the use of the _chain rule_. However, this strategy does not actually reduce the effort needed to calculate it. For that, we consider "linking" variables together through _conditional independence_, to reduce the number of values to consider.
 
-When we factor conditional independence in a BN, the resulting DAG is no longer fully connected (since there are some variables that are independent from others). For example, having $P(X_1,X_2,X_3)$ and assuming $P(X_1|X_2,X_3) = P(X_1|x_3)$, the resulting BN no longer has an edge $X_2 \to X_1$
+When we factor conditional independence in a BN, the resulting DAG is no longer fully connected (since there are some variables that are independent from others). For example, having $P(X_1,X_2,X_3)$ and assuming $P(X_1|X_2,X_3) = P(X_1|X_3)$, the resulting BN no longer has an edge $X_2 \to X_1$
 
 ![](https://i.imgur.com/ZBpS3Ft.png)
 
