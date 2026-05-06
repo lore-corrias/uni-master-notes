@@ -1340,4 +1340,4 @@ For example,
 4. Now sample again and get $Rain = true$
 5. Set $w = w \times P(WetGrass = t|Sprinkler=t, Rain=t) = 0.099$ sampling $WetGrass = true$.
 
-This means that, among samples that accord to the evidence, we expect $9.9\%$ of samples to have $Rain=true, Cloudy=true$. 
+This means that, among samples that accord to the evidence, we expect $9.9\%$ of samples to have $Rain=true, Cloudy=true$.tl

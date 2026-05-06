@@ -551,7 +551,7 @@ $$
 
 Artificial Neural Network are born from the rapid development of neuroanatomy and neurophisiology. The idea is to recreate a learning algorithm that simulates that of the human brain through _digital neurons_, which are now considered to be its fundamental building block.
 
-Human neurons are nerve cells that "_fire_" (emit an electrical signal) in response to a certain pattern. Their concatenation (humans have $\approx 10^{15}$ neurological connections in their body). The first proposal that imitates human neurons is that of the "_logical unit_" by McCulloch and Pits in $1943$. 
+Human neurons are nerve cells that "_fire_" (emit an electrical signal) in response to a certain pattern. Their concatenation (humans have $\approx 10^{15}$ neurological connections in their body) allows the human brain to handle everyday tasks. The first proposal that imitates human neurons is that of the "_logical unit_" by McCulloch and Pits in $1943$. 
 
 > [!info] First prototype of neurons
 > 
@@ -800,6 +800,20 @@ $$
 \frac{\partial E}{\partial w_k} = \frac{\partial E}{\partial y} \frac{\partial y}{\partial a} \frac{\partial a}{\partial w_k}
 $$
 
+> [!help]
+> 
+> The chain rule says that if a function $f$ can be represented as the composition of another function, like $f(g(x))$, then the derivative of said function equals the product of individual rates of changes:
+> 
+> $$
+> \frac{d}{dx} f(g(x)) = f'(g(x)) \cdot g'(x)
+> $$
+> 
+> or, in Leibniz notation:
+> 
+> $$
+> \frac{dy}{dx} = \frac{dy}{du} \cdot \frac{du}{dx}
+> $$
+
 ![](https://i.imgur.com/WXX6IGc.png)
 
 For example, if $E(y,t) = \frac{1}{2}(t-y)^2$ and we use $g(a) = (1+e^{-a})^{-1}$ as the activation function, then the singular derivatives can be computed like this:
@@ -815,6 +829,8 @@ This means that we can adapt the partial derivative for it using the same chain 
 $$
 \frac{\partial E}{\partial w_k} = \frac{\partial E}{\partial y_j}\frac{\partial y_j}{\partial a_j}\frac{\partial a_j}{\partial w_k}
 $$
+
+
 
 We already calculated a value for the last two terms (respectively, $y_j(1-y_j)$ and $x_k$), but what about $\frac{\partial E}{\partial y_j}$? We know that $E(y,t)$ depends on $y_j$ through the output of each unit of the next layer: $u_i^{l+1}$, meaning we can apply the chain rule again:
 
@@ -855,7 +871,7 @@ $$
 ANNs can also incur in over-fitting. To mitigate the issue, we can either:
 
 * Choose the correct network through the trial-and-error method described above
-* Set constraints on network weights by adding _penalty terms_ to the error function, which favour "simpler" decision boundaries (e.g., avoid **too large** weights in absolute value). This is called "**regularisation**".
+* Set constraints on network weights by adding _penalty terms_ to the error function, which favor "simpler" decision boundaries (e.g., avoid **too large** weights in absolute value). This is called "**regularization**".
 * Monitor the error function through the epochs on a distinct set than the training ones. After some epochs, while the training error decreases the validation one could increase: this is a symptom of over-fitting.
 
 ### ANN vs DT
