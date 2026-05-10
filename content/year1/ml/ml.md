@@ -1,6 +1,6 @@
 ---
 date: 2026-04-16
-draft: false
+draft: true
 ---
 # Machine Learning
 
@@ -403,11 +403,10 @@ Here, $R$ is the expected risk for a class. We can then use this notion to formu
 > 
 > $$
 > \Lambda =  \begin{pmatrix}
-  \lambda(\alpha_1\ |\ \omega_1) & \lambda(\alpha_1\ |\ \omega_2) & \dots & \lambda(\alpha_1\ |\ \omega_c) \\ 
-  \lambda(\alpha_2\ |\ \omega_1) & \lambda(\alpha_2\ |\ \omega_2) & \dots & \lambda(\alpha_2\ |\ \omega_c) \\
-  \dots & \dots & \dots & \dots \\
-  \lambda(\alpha_a\ |\ \omega_1) & \lambda(\alpha_a\ |\ \omega_2) & \dots & \lambda(\alpha_a\ |\ \omega_c)
-\end{pmatrix}
+> \lambda(\alpha_1\ |\ \omega_1) & \lambda(\alpha_1\ |\ \omega_2) & \dots & \lambda(\alpha_1\ |\ \omega_c) \\ 
+> \lambda(\alpha_2\ |\ \omega_1) & \lambda(\alpha_2\ |\ \omega_2) & \dots & \lambda(\alpha_2\ |\ \omega_c) \\
+> \dots & \dots & \dots & \dots \\
+> \lambda(\alpha_a\ |\ \omega_1) & \lambda(\alpha_a\ |\ \omega_2) & \dots & \lambda(\alpha_a\ |\ \omega_c) \end{pmatrix}
 > $$
 > 
 > A classifier following the _minimum risk decision rule_ follows the strategy of picking the classification class that has the lowest **conditional risk**, associated with action $\alpha_i$:
@@ -566,15 +565,15 @@ In this case:
 > 
 > $$
 > \Lambda = \begin{pmatrix}
-  \lambda_{N,N} & \lambda_{N,\text{Intr}}\\ 
-  \lambda_{\text{Intr}, N} & \lambda_{\text{Intr},\text{Intr}}
-\end{pmatrix} = \begin{pmatrix}
-  0 & \lambda_{N,\text{Intr}}\\ 
-  \lambda_{\text{Intr}, N} & 0
-\end{pmatrix} = \begin{pmatrix}
-  0 & N \times 10 \\ 
-  N & 0
-\end{pmatrix}
+> \lambda_{N,N} & \lambda_{N,\text{Intr}}\\ 
+> \lambda_{\text{Intr}, N} & \lambda_{\text{Intr},\text{Intr}}
+> \end{pmatrix} = \begin{pmatrix}
+> 0 & \lambda_{N,\text{Intr}}\\ 
+> \lambda_{\text{Intr}, N} & 0
+> \end{pmatrix} = \begin{pmatrix}
+> 0 & N \times 10 \\ 
+> N & 0
+> \end{pmatrix}
 > $$
 
 > [!HELP] Exercise
@@ -726,14 +725,14 @@ Here, $T$ is the **reject threshold**, with $T \in [0,1]$. When $T=0$ (meaning $
 > 
 > $$
 > \Lambda = \begin{pmatrix}
-  \lambda_R & \lambda_R \\ 
-  \lambda_{SS} & \lambda_{SH} \\
-  \lambda_{HS} & \lambda_{HH}
-\end{pmatrix} = \begin{pmatrix}
-  0.3 & 0.3 \\
-  0 & 1 \\
-  1 & 0
-\end{pmatrix}
+> \lambda_R & \lambda_R \\ 
+> \lambda_{SS} & \lambda_{SH} \\
+> \lambda_{HS} & \lambda_{HH}
+> \end{pmatrix} = \begin{pmatrix}
+> 0.3 & 0.3 \\
+> 0 & 1 \\
+> 1 & 0
+> \end{pmatrix}
 > $$
 > 
 > In particular, we assign a cost to misclassification $=1$ for both false negative and false positives, while the cost of rejection is a bit smaller, $0.3$. We can calculate the threshold $T$ as the ratio between the differences of the error cost and the rejection cost and that between the error cost and the correct classification cost:
@@ -769,7 +768,7 @@ Here, $T$ is the **reject threshold**, with $T \in [0,1]$. When $T=0$ (meaning $
 > We can then revert the two sides so that we can simplify the inequality
 > 
 > $$
-> \frac{P(x\ |\ \omega_1)P(\omega_1) + P(x\ |\ \omega_2)P(\omega_2)}{P(x\ |\ \omega_1)P(\omega_1)} < \frac{1}{T} \implies 1 + \frac{P(x\ |\ \omega_2)}{P(x\ |\ \omega_1)} \cdot \frac{P(\omega_2)}{P(\omega_1)} > \frac{1}{T}
+> \frac{P(x\ |\ \omega_1)P(\omega_1) + P(x\ |\ \omega_2)P(\omega_2)}{P(x\ |\ \omega_1)P(\omega_1)} < \frac{1}{T} \implies 1 + \frac{P(x\ |\ \omega_2)}{P(x\ |\ \omega_1)} \cdot \frac{P(\omega_2)}{P(\omega_1)} \frac{1}{T}
 > $$
 > 
 > Now that we have reduced every term to its fundamental, we can rewrite $P(x\ |\ \omega_i)$ knowing that 
@@ -951,9 +950,9 @@ The Gaussian distribution is so widely used because a lot of natural phenomena f
 > 
 > $$
 > \Sigma = \begin{pmatrix}
-  \sigma_{11} & \sigma_{12} \\ 
-  \sigma_{21} & \sigma_{22}
-\end{pmatrix}
+> \sigma_{11} & \sigma_{12} \\ 
+> \sigma_{21} & \sigma_{22}
+> \end{pmatrix}
 > $$
 > 
 > The elements on the diagonal represent the variance of each feature $x_1, x_2$. The other elements, instead, represent the variance between the different features. That is why we can tell that variables are independent if $\Sigma_{ij} = 0$ (because there is no variance between them).
@@ -1186,4 +1185,217 @@ Meaning we do not obtain a linear function by simplifying but a _quadratic one_:
 > 
 > TODO
 
+# Non-parametric Classifiers
+
+The classifiers described in the previous chapter all shared a singular characteristic: the **probability density functions** were always known. This assumption, however, might not always hold true, so we need a way to build a classifier that is "blind" to the underlying distribution function. This is where _non-parametric classifiers_ come into place.
+
+Generally speaking, non-parametric classifier approach the problem of classification with a common strategy: the idea is to identify, inside the data set, some "**prototype** samples", which are sort of "representative" of a single class (these might be some samples that share any characteristic making them extremely representative of a set: i.e., a sea bass that has a certain length making him unmistakably classifyable as a sea bass). In order to classify more "uncertain" samples, non-parametric classifies compute a _geometric distance_ from such prototypes, to then choose the class of the prototype being the **closest** to the sample to be classified. Here, for example, is a graphical representation of prototypes (in red and black) and classification regions (in gray and white): if a samples falls into one region, it is classified for the relative class:
+
+![Non-parametric image | center](https://i.imgur.com/qeOG8AK.png)
+
+## $k$-Nearest Neighbor Method ($kNN$)
+
+The simplest non-parametric classifier is the $kNN$, or "$k$-Nearest Neighbor". We specify a **training set** $D$ that contains $n$ points, which will act as our prototypes. Each of these prototypes belongs to one of the "$c$" classes:
+
+$$
+D = [x_1,x_2,\dots,x_n]; x_i = (x_{i1},x_{i2},\dots,x_{id});\ i=1,\dots,n
+$$
+
+If we need to classify a sample $x$, we simply take the $k$ nearest prototypes from $D$, along with their class lables. We then classify $x$ according to the most represented class label amongst its neighbors. For example:
+
+![knn neighbors | center](https://i.imgur.com/3gYs7Lv.png)
+
+In this figure, we take a total of $k=5$ prototypes from $D$. Since we have $3$ prototypes that are classified as "black", and $2$ that are classified as "red", $x$ will get "black" as its class label, as it is the most represented label in the region $R$.
+
+> [!NOTE] Posterior probability of $kNN$
+> 
+> The posterior probability estimated by the $kNN$ method can be expressed as:
+> 
+> $$
+> \hat{P}(\omega_i\ |\ x) = \frac{k_i}{k}
+> $$
+> 
+> Where:
+> 
+> - $k_i$ is the number of the nearest neighbors inside $R$ of class $\omega_i$
+> - $k$ is the number of the $k$ nearest prototypes of $x$ inside $R$
+
+Since the Bayes error assigns $x$ to the class with the highest $\hat{P}$, this amounts to choosing the class most represented among the $k$ neighbors.
+
+> [!NOTE] Choosing $k$
+> 
+> In our previous example, we chose an arbitrary $k=5$, but a good rule of thumb is to choose $k=\sqrt{n}$, making sure that $k$ is odd if $n$ is even (to avoid tie-breaks). We also use "**cross-validation**" to help us: the data set is divided into a "_Training set_" (which contains the prototypes), a "_Validation set_" (which is used to evaluate the error $E$ with different values of $k$) and a "_Test set_".
+
+## Generalization of non-parametric methods
+
+We saw how $kNN$ can be used to classify samples when the PDF is now known a-priori. We can generalize this methods to explain how non-parametric methods as a whole work, to then fall into specific examples.
+
+The basic idea of these methods is that the probability $P$ of a vector $x$ (a data sample) falling into a region $R$ of the feature space (which corresponds to a class label) is:
+
+$$
+P = \int_R p(x') dx'
+$$
+
+This is trivial: we saw in the previous chapter that, when we have a Gaussian distribution, the probability of a sample falling into a region is equal to the area under the curve of the Gaussian distribution going from one extremity of $R$ up to infinity. In fact, if $R$ is a _smoothed region_, we can regard $P$ as a smoothed version of the density function $p(x)$, meaning we can estimate $p(x)$ using $P$.
+
+In particular, suppose to independently draw $n$ identically-distributed (i.i.d) samples $x_1,x_2,\dots,x_n$ according to $p(x)$. Knowing that $k$ of these samples out of $n$ fall in $R$, the probability $P$ of a sample falling inside $R$ can be _estimated_ to be $P = \frac{k}{n}$.
+
+> [!HELP] Proof
+> 
+> The probability of $k$ out of $n$ samples falling inside $R$ is determined by the _binomial law_:
+> 
+> $$
+> P_k = \begin{pmatrix}n \\ k\end{pmatrix}P^k (1-P)^{n-k}
+> $$
+> 
+> The _expected value_ (or, in simpler terms, the _mean_) of this distribution is $\epsilon(k) = nP$. We want to demonstrate that $P=\frac{k}{n}$, so we plug $\frac{k}{n}$ instead of $k$ and obtain $\epsilon(k/n) = P$.
+> 
+> However, the _variance_ of the binomial law is $var(k/n) = P(1-P)/n$. To verify that $k/n$ is a "good estimator" of $P$, we need to make sure that it is an **asymptotically unbiased** estimator (the bias, or the variance, goes to $0$ as $n$ goes to $\infty$). We can demonstrate this by calculating the limit:
+> 
+> $$
+> \lim_{n \to +\infty} \epsilon(k/n) = P, \text{var}(k/n)=0
+> $$
+> 
+> Practically, this means that $k/n$ is an estimator that gets better and better as $n$ grows (since the bias decreases). In the example, we see that the normal distribution spikes at $k/n = 0.7$ for large values of $n$:
+> 
+> ![bias binomial distribution | center](https://i.imgur.com/ZGZGYHQ.png)
+
+We can make two additional assumptions to get rid of the integral and simplify our probability function. We can assume that:
+
+- $p(x)$ is continuous (a relatively safe assumption)
+- $R$ is a very small region, so much that $p(x)$ does not vary appreciably within it
+
+With that, we can say that:
+
+$$
+P = \int_R p(x')\ dx' \approx p(x)V
+$$
+
+Where $V$ is the volume enclosed by $R$. Since we previously said that $P \approx k/n$, we can rewrite this as:
+
+> [!NOTE] Density estimation
+> 
+> $$
+> P \approx k/n \approx p(x)V \to p(x) \approx \frac{k/n}{V} = \frac{k}{nV}
+> $$
+
+However, to obtain this formula we have made two contradictory assumptions:
+
+1. That $V$ must be sufficiently small to make $p(x)$ not vary too much (meaning the _density of the region_ remains constant)
+2. $n$ must be large enough for the distribution to be sharply peaked at $k/n$ (meaning the _value of the density_ must be large)
+
+To get rid of this contradiction, we have two strategies. We either:
+
+1. Fix $k$ and determine $V$ from the data. This is the $kNN$ method.
+	- To obtain a true version of $p(x)$, then $V$ must tend to $0$. Practically speaking, since the number of samples is limited, this is usually not possible (we need to accept a certain amount of variance and bias).
+2. Fix $V$ and determine $k$ from the data. This is the method used by **kernel density estimators**.
+	- Note that even if we had $n \to \infty$ fixing $V$, the ratio will converge, but we won't have obtained the true $p(x)$, but just an averaged value of the sets inside $V$.
+
+Both these methods converge to the true probability density, provided that $V$ shrinks suitably with $n$ and that $k$ grows with $n$. In particular, if we form a sequence of regions $R_1, R_2, \dots, R_n$ containing a sample $x$ while varying the number of samples $n$, we can estimate the probability of $x$ falling in the $n$-th estimate:
+
+$$
+p_n(x) = \frac{k_n}{nV_n}
+$$
+
+With $V_n$ being the volume of region $R_n$ and $k_n$ the samples inside it. For $p_n(x)$ to converge to $p(x)$, we must have:
+
+1. $\lim_{n \to \infty}V_n = 0$. This assures that the space averaged $P/V$ converges to $p(x)$, if the region shrinks uniformly and that $p(\cdot)$ is continuous.
+2. $\lim_{n \to \infty}k_n = \infty$. This assures that the frequency ratio will converge to $P$
+3. $\lim_{n \to \infty}\frac{k_n}{n} = 0$. This is necessary to make $p_n(x)$ converge at all
+
+To obtain these conditions, we either:
+
+1. Specify a volume $V_n$ as some function of $n$ so that we can shrink it, such as $V_n = 1/\sqrt{n}$. We then demonstrate that $p_n(x)$ converges to $p(x)$ with the constraints above.
+	- This is the **Parzen-window / kernel density estimation** (KDE) method
+2. Specify $k_n$ as a function of $n$, like $k_n = \sqrt{n}$. The volume $V_n$ then grows until it contains $k_n$ neighbors of $n$
+	- This is the $kNN$ method we saw.
+	- ![knn example | center](https://i.imgur.com/1R3itUg.png)
+
+
+Both converge if we have infinite samples, but for finite ones this is not guaranteed.
+
+![kNN estimators convergence | center](https://i.imgur.com/l1KqC4J.png)
+
+As we said, the choice of fixing $V$ and determine $k$ gives rise to the **kernel density estimators**. In particular, if we consider $R$ to be an hypercube centered on the origin, we can define a _kernel function_ or _Parzen window_:
+
+> [!NOTE] Kernel function
+> 
+> $$
+> k(u) = \begin{cases} 1, & |u_i| \leq 1/2, i=1,\dots,D \\ 0, & \text{otherwise} \end{cases}
+> $$
+
+This function can be used to verify if a point $u$ is inside the hypercube delimiting the region $R$. In particular, $k(\frac{x-x_n}{h})$ will be $1$ if the data point $x_n$ is inside the $h$-size, $x$-centered cube, or $0$ otherwise. This means we can count the number of datapoints inside our region by computing:
+
+$$
+K = \sum_{n=1}^Nk(\frac{x-x_n}{h})
+$$
+
+And thus, express $p(x)$ as the average over all $N$ training points of the density of points in our hypercube (the number of points divided by the volume of the hypercube with $h$ dimensions):
+
+> [!INFO] Kernel density estimations:
+> 
+> $$
+> p(x) = \frac{1}{N} \sum_{n=1}^N \frac{1}{h^D}k(\frac{x-x_n}{h})
+> $$
+> 
+> Or, if the kernel is a Gaussian instead of a hypercube:
+> 
+> $$
+> p(x) = \frac{1}{N}\sum_{n=1}^N \frac{1}{(2\pi h^2)^{1/2}}exp\{\frac{||x-x_n||^2}{2h^2}\}
+> $$
+
+![kernel density 1d | center](https://i.imgur.com/Yfy0nDz.png)
+
+### Classification
+
+Now that we have our way of estimating the density of our data, we can move to the classification part. We want to obtain an estimate of $p(x|y)$ to then apply the Bayes' theorem and compute the posterior probabilities.
+
+#### $kNN$
+
+We discussed earlier that the estimation of the unconditional PDF can be approximated as:
+
+$$
+p_n(x) = \frac{k_n}{nV_n}
+$$
+
+If we denote $k_i$ as the number of elements in $R$ from class $\omega_i$ specifically, the class-conditional PDF for $\omega_i, i=1,\dots,c$ becomes:
+
+$$
+p(x\ |\ \omega_i) = \frac{k_i}{n_iV_n}
+$$
+
+Applying Bayes's theorem, we can compute the _posterior probability_:
+
+$$
+P_n(\omega_i\ |\ x) = \frac{p_n(x\ |\ \omega_i)p(\omega_i)}{p_n(x)} = \frac{\frac{k_i}{n_iV}\frac{n_i}{n}}{\frac{k/n}{V}} = \frac{k_i}{k}
+$$
+
+Which means that, following the minimum error classifier, $x$ will be assigned to the class most represented among the $k$ neighbors of $x$. Note how $R$ and $V$ are specific for each $x$, but since $kNN$ assigns the class label based only on $k_i$ the label is not dependent on either. 
+
+We say that $kNN$ is Bayes-optimal if:
+
+$$
+\lim_{n \to \infty}k_n = \infty \land \lim_{n\to\infty}\frac{k_n}{n} = 0
+$$
+
+In this example we can see the error rate for a two-category problem: when $k=\infty$ the estimated probabilities match the true probabilities:
+
+![](https://i.imgur.com/cDdZGfN.png)
+
+#### $1NN$
+
+A relaxation to $kNN$ is the **Nearest-neighbor Rule** ($1NN$): take $D^n=\{x_1,\dots,x_n\}$ as a training set of samples belonging to $c$ classes $\omega_1,\dots,\omega_c$ and be $x' \in D^n$ the nearest sample to the unknown $x$. The decision rule is to simply assign $x$ to $x'$'s class. This, of course, produces a grater error than the minimum possible, but it is proven that given infinite prototypes the error rate is never worse than _twice_ the Bayes rate.
+
+This assumption can be made because it is reasonable to say that if $n$ is "very large", then $x'$ will be very close to $x$, so that $P(\omega'\ |\ x') = P(\omega_i\ |\ x)$. This classification methods can be visualized in a so-called "**Voronoi tesselation**" of the space, where a 2D grid is divided into $N$ (we have a $kNN$ with $k=1$) cells, each encompassing the space closest to the training point it contains:
+
+![Voronoi tesselation | center](https://i.imgur.com/zhgVwY6.png)
+
+In particular:
+
+- If the minimum probability error is very small ($P(\omega_m\ |\ x) \approx 1$), $1NN$ is very close to the optimal rule, because it is unlikely for the posterior probability to change.
+- On the contrary, if all classes are close to having the same probabilities ($P(\omega_m\ |\ x) \approx 1/c$), $1NN$ is likely suboptimal.
+
+> [!HELP] Python exercise
+> 
+> TODO, page 39 set 3
 
