@@ -1,6 +1,6 @@
 ---
 date: 2026-04-16
-draft: true
+draft: false
 ---
 # Machine Learning
 
@@ -253,7 +253,7 @@ $$
 P(error) = P\{x \in R_2, \omega_1\} + P\{x \in R_1, \omega_2\}
 $$
 
-meaning that our error probability equals to the sum of the probabilities of erroneous labeling ($\omega_1$ while $x$ should be in $R_2$ and vice-versa). Here, $R_1$ and $R_2$ are, respectively, the areas under $\omega_1$ from $0$ to the threshold $x^*$ and the area under $\omega_2$ from $x^*$ to $+\infty$:
+meaning that our error probability equals to the sum of the probabilities of erroneous labeling ($\omega_1$ while $x$ should be in $R_2$ and vice-versa). Here, $R_1$ and $R_2$ are, respectively, the areas under $\omega_2$ from $0$ to the threshold $x^*$ and the area under $\omega_1$ from $x^*$ to $+\infty$:
 
 ![Reducible error | center](https://i.imgur.com/mTxu56k.png)
 
@@ -681,9 +681,9 @@ This means that we have three regions:
 
 $$
 R = \begin{cases}
-R_0 \text{ (the reject region)}  & = \{x \in R : R(\omega_0\ |\ x\} < R(\omega_j\ |\ x) \forall j \neq 0\} \\
-R_1 \text{ (the } \omega_1\text{ region)} & = \{x \in R : R(\omega_1\ |\ x\} < R(\omega_j\ |\ x) \forall j \neq 1\} \\
-R_1 \text{ (the } \omega_2\text{ region)} & = \{x \in R : R(\omega_2\ |\ x\} < R(\omega_j\ |\ x) \forall j \neq 2\}
+R_0 \text{ (the reject region)}  & = \{x \in R : R(\omega_0\ |\ x) < R(\omega_j\ |\ x) \forall j \neq 0\} \\
+R_1 \text{ (the } \omega_1\text{ region)} & = \{x \in R : R(\omega_1\ |\ x) < R(\omega_j\ |\ x) \forall j \neq 1\} \\
+R_1 \text{ (the } \omega_2\text{ region)} & = \{x \in R : R(\omega_2\ |\ x) < R(\omega_j\ |\ x) \forall j \neq 2\}
 \end{cases}
 $$
 
@@ -1399,3 +1399,1516 @@ In particular:
 > 
 > TODO, page 39 set 3
 
+# Linear Discriminant Functions
+
+When dealing with linear discriminant functions, we consider a case where the function
+
+$$
+f_k(x;\theta), k=1,\dots,K
+$$
+
+Used to determine a class label for a sample is **given**. The core idea is that we use the _training data_ to estimate the parameters $\theta$ to "tune" the function to perform better classifications. The other assumption is that, of course, the function must be linear, i.e.:
+
+$$
+f(x;\theta)=w^Tx+b, \text{ with } \theta=(w,b)
+$$
+
+Which can also be rewritten in the form:
+
+$$
+f(x;\theta)=w^Tx+b=\sum_{j=1}^dw_jx_j+ b
+$$
+
+Essentially, a linear discriminant functions is composed of a weight vector $w$ containing $d$ weights. These weights are then multiplied against each feature $x_j$ of the feature vector $x$, and the summed to a bias $b$. If we have a two-class classification problem, for example, the result of this linear function is generally:
+
+$$
+y = \begin{cases}+1 & \text{if } f(x) \geq 0 \\ -1 & \text{otherwise} \end{cases}
+$$
+
+Graphically, the discrimination function can be represented as a line that divides two "cluster" of data samples, depending on their class:
+
+![Linear discriminant function | center](https://i.imgur.com/QSsHw5E.png)
+
+Since the function is linear, multiplying it by a constant factor amounts to multiplying the parameters $w,b$ to the same factor, and changing the slope of the function:
+
+![Slope change | center](https://i.imgur.com/VcpkFBw.png)
+
+Given these assumptions, we can already build the simplest linear classifier possible, which is called "**Nearest Mean Classifier**". The concept is very simple: we estimate the mean values of the two classes from the training set, which are called $\mu_1,\mu_2$, and unknown samples $x^*$ are assigned to the class with the smallest euclidean distance from the mean:
+
+$$
+d(x^*,\mu_2)</=/>d(x^*,\mu_1)
+$$
+
+In this case, the hyperplane traced by the function is perpendicular to the vector $\mu_1-\mu_2$, and passes through the mean point $(\mu_1+\mu_2)/2$:
+
+![NMC | center](https://i.imgur.com/tqDxcSg.png)
+
+## Learning as an Optimization Problem
+
+We defined a linear discriminant function using the general formula:
+
+$$
+f(x;\theta) = w^Tx+b
+$$
+
+However, in a classification problem the only element that is given is $x$, the feature vector. This means that we need to find a way to calculate $(w,b)$. The most modern approaches formulate the learning problem as an [optimization problem](https://en.wikipedia.org/wiki/Optimization_problem). Optimization problems require finding the _best possible solution_, usually through an iterative method.
+
+More specifically, we can frame the problem of determining the best values of $(w^*,b^*)$ using the _loss function_: we want to find the values for this parameters that make the error function **the smallest possible**. In formulas:
+
+> [!NOTE] Optimization Problem
+> 
+> $$
+> w^*,b^* = \text{argmin}_{w,b} \frac{1}{n}\sum_{i=1}^nl(y_i, f(x_i))+\lambda \Omega(w)
+> $$
+> 
+> Where:
+> 
+> - $\frac{1}{n}\sum_{i=1}^nl(y_i,f(x_i))$ is the **loss term**, also written as $L(D,\theta)$. $l(y_i,f(x_i))$ is the _loss function_, which measures how much a prediction is wrong (for example, 0 if the label is assigned correctly or 1 otherwise for the zero-one loss function), so this is just the mean of the value of the loss function for each label.
+> - $\Omega(w)$ imposes a penalty for classifiers that are too complex, in order to reward smoother functions.
+> - $\lambda$ is an hyperparameter that tunes the trade-off between regularization and training loss. $\lambda \Omega(w)$ is called the **regularization term**
+> - As a reminder, $\theta = (w,b)$.
+>   
+> We can also write this as:
+> 
+> $$
+> \theta^* = \text{argmin}_\theta L(D,\theta) = \frac{1}{n}\sum_{i=1}^nl(y_i, f(x_i;\theta))+\lambda \Omega(w)
+> $$
+> 
+> Having $D=(x_i,y_i)^n_{i=1}$ as the _training dataset_ ($x$ are the samples, while $y$ are the correct labels used to calculate the error)
+
+To understand how solving this minimization problem works in theory, we can consider a simpler example without the regularization term:
+
+$$
+L(D,\theta) = \frac{1}{n}\sum_{i=1}^nl(y_i, f(x_i;\theta))
+$$
+
+If we take $l$ to be the zero-one loss function (0 for correct predictions, 1 otherwise):
+
+$$
+l(y_i,f(x_i;\theta)) = \begin{cases}+1 & \text{if } y \cdot f(x) < 0 \\ -1 & \text{if } y \cdot f(x) \geq 0 \end{cases}
+$$
+
+This problem immediately becomes **NP-Hard** and too computationally inefficient to solve. This has to do with a function property which is called **convexity**:
+
+> [!NOTE] Convexity
+> 
+> A function is called convex if the _line segment_ between any two distinct points on the graph of the function lies above or on the graph of the function between the two points. In formula:
+> 
+> $$
+> f(\lambda x_1 + (1-\lambda)x_2) < \lambda f(x_1) + (1-\lambda)f(x_2),\ \ \forall x_1,x_2,\ \ \lambda \in [0,1]
+> $$
+> 
+> An example:
+> 
+> ![Convex vs non-convex | center](https://i.imgur.com/WBTYKQ4.png)
+> 
+> An important property of convexity is that, if a function is convex, then any local minima is **also a global minima**.
+
+In particular, the zero-one loss function is **not** convex. This is a problem, because the whole point of our optimization problem is to find the **global minima** of the function (which is the point where the function has the smallest value). In a non-convex function, however, we can find infinitely many _local minima_ that are not global, making our algorithm prone to error and hard to define (we'd need to find a way to distinguish a local minima from a global one, which is not possible):
+
+![Local minima zero-one loss function | center](https://i.imgur.com/sNWDEA8.png)
+
+However, if our function _is_ convex, then it is much easier to find the optimal values for $\theta$, since we just need to find the only global minima (there are some known methods to do this that we will see later).
+
+If we want to keep the same behavior of the zero-one loss function without the convexity problem, we can switch to using the _hinge loss_ function (which is the tighter convex upper bound on the zero-one loss function). Minimizing it is the same as minimizing the 0-1 loss:
+
+$$
+l(y,g(x;\theta)) = \text{max}(0,1-yf)
+$$
+
+![Hinge loss function | center](https://i.imgur.com/gbmfmRI.png)
+
+As a sidenote, let's assume that we fix $b=0$ and aim to minimize the training loss only for $w_1,w_2$. In this case, each pair represents a different classifier that passes through the origin, and for each of these we can report the corresponding training loss in a colored prompt, showing the _optimization landscape_ (the surface of the function we aim to minimize):
+
+![Optimization landscape | center](https://i.imgur.com/ScvyGtl.png)
+
+Fixing $w_2=0$ as well we can look at the profile of the loss along the $w_2=0$ line:
+
+![w_2=0 | center](https://i.imgur.com/b5sty0r.png)
+
+### Gradient Optimization
+
+If our function is _smooth_, optimization becomes much easier, thanks to **gradients**.
+
+> [!NOTE] Gradient
+> 
+> The Gradient of a differentiable function $f$ of several variables is the vector field $\nabla f$ whose value, at a point $p$, gives the direction and the rate of the fastest decrease.
+> 
+> $$
+> \nabla f(p) = \begin{bmatrix} \frac{\delta f}{\delta x_1}(p) \\ \dots \\ \frac{\delta f}{\delta x_n}(p) \end{bmatrix}
+> $$
+> 
+> The $i$-th element of the gradient is thus calculated as the partial derivative of the $i$-th variable computed at point $p$.
+> 
+> It is a fundamental notion of optimization theory, since, if the value of the gradient at point $p$ of a function:
+> 
+> - Is not zero, then the gradient indicates the direction in which the function increases the most quickly from $p$
+> - Is zero, then $p$ is a stationary point (a local or global minima)
+
+The point of gradients is that we can start by taking a random point of our function (this step is called _random initialization_) and then "follow" the gradient descent, updating the parameters accordingly. In particular, for our loss function, we have:
+
+$$
+L(D,\theta) = \frac{1}{n}\sum_{i=1}^n l(y_i,f(x_i;\theta)), \nabla_\theta L = \frac{1}{n}\sum_{i=1}^n \nabla_\theta l(y_i,f(x_i;\theta))
+$$
+
+Here, $\nabla_\theta L$ is the _direction_ in our space along which the objective maximally decreases. 
+
+> [!NOTE] Gradient descent algorithm
+> 
+> In pseudocode, these would be the passages to be iterated to reach an optimal value for parameters $\theta$
+> 
+> ```
+> initialize theta, new_theta, N, K, epsilon
+> for k in range(0,K-1):
+> 	new_theta = theta - n * gradient_L(theta)
+> 	if |L(theta) - L(new_theta)| < epsilon:
+> 		break
+> 	theta = new_theta
+> ```
+> 
+> 1. We start by initializing $\theta, n, K, \epsilon$.
+> 	- $\theta$ is our parameters vector
+> 	- $n$ is our _learning rate_, which affects convergence: smaller values slow down convergence, while higher ones might prevent the function from converging at all. Usually updated between iterations
+> 	- $K$ is the total number of iterations
+> 	- $\epsilon$ acts as a _stop condition_: if, at a certain iteration step, the training loss is almost constant, the algorithm interrupts, assuming that the function has been optimized enough
+> 2. We iterate $K$ times:
+> 	1. We compute the new optimal parameters $\theta_{new}$ by taking $\theta$ and subtracting the value of our gradient function $\nabla L(\theta)$ multiplied by the learning rate $n$. The subtraction effectively allows us to "follow" the gradient descent down towards the optimal point, while $n$ acts as a "booster" to speed up the optimization.
+> 	2. We verify if we have reached the stop condition: either we have exhausted the number of iterations $K$ or the optimization is smaller than an arbitrary $\epsilon$. If we did, then stop. Otherwise, we take $\theta_{new}$ as our new $\theta$ and repeat from step $2$.
+
+As an example of how the step size affects convergence, we can see this graphical representation of the optimization of the same function via the gradient descent with different step sizes (taken from [here](http://fa.bianp.net/teaching/2018/eecs227at/gradient_descent.html)):
+
+![small step size | center](https://i.imgur.com/hOMrv0x.png)
+
+![large step size | center](https://i.imgur.com/oBhEMSm.png)
+
+If, instead, the function is non-convex or is badly conditioned, the convergence can be very slow:
+
+![small step size, bad convergence | center](https://i.imgur.com/bTlOMLP.png)
+
+![big step size, bad convergence | center](https://i.imgur.com/vL1uKCP.png)
+
+#### Quadratic Objectives
+
+We've seen how the steepest descent algorithm can help us reach an optimal configuration of our parameters $\theta$. Graphically we saw that this approximates to the act of "going down" the slope of the function towards the global minima. If we think about this, as we get closer to the point we are looking for, the function starts to become more and more similar to a linear function: this act of "approximating" a convex or quadratic function is called "**linear approximation**", and can also be achieved using _Taylor's theorem_:
+
+> [!NOTE] Taylor's Theorem
+> 
+> In calculus, Taylor's theorem states that if a function $f$ can be approximated $k$ times, then the function can be approximated around a certain point with a _polynomial_ function of degree $k$, which is called the "$k$-th-order" Taylor polynomial. In its general form, the $k$-th-order Taylor polynomial has the form:
+> 
+> $$
+> P_k(x) = f(a) + f'(a)(x-a) + \frac{f''(a)}{2!}(x-a)^2 + \dots + \frac{f^{(k)}(a)}{k!}(x-a)^k
+> $$
+> 
+> Where $f^{(k)}$ is the $k$-th derivative of the function $f$.
+> 
+> If we take a quadratic function (differentiable $k=2$ times), its second-order Taylor polynomial becomes:
+> 
+> $$
+> P_2(x) = f(a)+f'(a)(x-a) + \frac{f''(a)}{2}(x-a)^2
+> $$
+> 
+> Here is a plotted example of the function $f(x)=e^x$ (in blue) with its linear approximation $P_1(x)=1+x$ (in red). At $a=0$, the two functions have approximately the same value:
+> 
+> ![e^x | center](https://upload.wikimedia.org/wikipedia/commons/thumb/6/6e/E%5Ex_with_linear_approximation.png/250px-E%5Ex_with_linear_approximation.png)
+> 
+> The approximation gets even better if we consider $P_2(x) = 1 + x + \frac{x^2}{2}$ at $a=0$ (the quadratic approximation):
+> 
+> ![quadratic approximation | center](https://upload.wikimedia.org/wikipedia/commons/thumb/6/6b/E%5Ex_with_quadratic_approximation_corrected.png/250px-E%5Ex_with_quadratic_approximation_corrected.png)
+
+> [!HELP] Taylor's Theorem for multi-variable cases
+> 
+> If we take a one-dimensional function, its linear approximation can be expressed using the following polynomial:
+> 
+> $$
+> f(x) \approx f(a) + f'(a)(x-a)
+> $$
+> 
+> The idea is that if we want to approximate the value of $f$ at a point $x$, then we can take a secondary point $a$ which is near $x$ and then reason like this: "if function $f$ has a certain value at $a$, then we can take the value at point $x$ by multiplying how much the function changes per unit of movement per the movement". The rate of change of the function is given by its first order derivative, $f'(a)$, while the change itself is just $x-a$. In formulas:
+> 
+> $$
+> f(x+h) \approx f(x) + f'(x)h
+> $$
+> 
+> With $h = x-a$
+> 
+> However, if we have a multi-dimensional function, the movement occurs along multiple dimensions. For example, if we have a two-dimensional function $f(x,y)$, the rate of change can be measured for both $x$ and $y$. This means that we have to take into account not one, but _two_ partial derivatives, one for $x$ and one for $y$. This means that if we express $\Delta x, \Delta y$ as the change in the values of $x$ and $y$ respectively, our linear approximation becomes something like this:
+> 
+> $$
+> f(x+\Delta x, y + \Delta y) \approx f(x,y) + \frac{\delta f}{\delta x}\Delta x + \frac{\delta f}{\delta y}\Delta y
+> $$
+> 
+> In order to obtain a more general version of this linear approximation for higher dimensions, we can define a vector containing all our first dimension partial derivatives:
+> 
+> $$
+> \nabla f = \begin{bmatrix}\frac{\delta f}{\delta x} \\ \frac{\delta f}{\delta y}\end{bmatrix}
+> $$
+> 
+> Then, we can do the same for our rates of change for our variables:
+> 
+> $$
+> \theta = \begin{bmatrix}x \\ y \end{bmatrix}
+> $$
+> 
+> $$
+> \Delta \theta = \begin{bmatrix}\Delta x \\ \Delta y \end{bmatrix}
+> $$
+> 
+> Now we can just rewrite the linear terms using matrix multiplication:
+> 
+> $$
+> f(\theta + \Delta \theta) \approx f(\theta) + \nabla f(\theta)^T \Delta \theta
+> $$
+> 
+> Since:
+> 
+> $$
+> \begin{bmatrix}f_x & f_y\end{bmatrix} \begin{bmatrix}\Delta x \\ \Delta y \end{bmatrix} = f_x \Delta x + f_y \Delta y
+> $$
+> 
+> Now we have a general formula to express linear approximation in case of multi-dimensional variables. The only remaining goal is to move from a linear approximation to a quadratic approximation. If we take, for example, a quadratic approximation, we now have to add to our example formula with one variable the term:
+> 
+> $$
+> \frac{1}{2}f''(x)h^2
+> $$
+> 
+> In linear functions, we have just one possible second-order derivative. For bi-dimensional functions, however, the derivatives become $4$, since we have:
+> 
+> - Pure second derivatives, which, like for their linear case, measure the _curvature_ of the function along one single axis: $\frac{\delta^2 f}{\delta x^2}, \frac{\delta^2 f}{\delta y^2}$
+> - Mixed derivatives, which measure how multiple dimension interact: $\frac{\delta^2 f}{\delta x \delta y}, \frac{\delta^2 f}{\delta y \delta x}$
+>   
+> The general form of a quadratic approximation would thus become:
+> 
+> $$
+> f(x+\Delta x, y + \Delta y) \approx f(x,y) + f_x \Delta x + f_y \Delta y + \frac{1}{2}[\Delta x(f_{xx} \Delta x + f_{xy} \Delta y) + \Delta y(f_{xy} \Delta x + f_{yy} \Delta y)]
+> $$
+> 
+> Because we need to consider all second derivatives and all rate of changes. For example, the term $f_{xx}\Delta x$ considers a change in the function of $\Delta x$ multiplying it by the rate of change of the rate of change of $x$ (the second derivative). However, we have 4 possible total combinations:
+> 
+> - The change of $x$ with itself ($f_{xx} \Delta x \Delta x$)
+> - The change of $x$ with respect to $y$ ($f_{xy}\Delta x \Delta y$)
+> - The change of $y$ with itself ($f_{yy}\Delta y \Delta y$)
+> - The change of $y$ with respect to $x$ ($f_{yx} \Delta y \Delta x$)
+> 
+> Meaning that if we multiply everything out, we obtain:
+> 
+> $$
+> f(x+\Delta x, y + \Delta y) \approx f(x,y) + f_x \Delta x + f_y \Delta y + \frac{1}{2}(f_{xx} \Delta x^2 + f_{xy}\Delta x \Delta y + f_{yx}\Delta y \Delta x + f_{yy} \Delta y^2)
+> $$
+> 
+> However, since $f_{xy} = f_{yx}$, we can compact this into:
+> 
+> $$
+> f(x+\Delta x, y + \Delta y) \approx f(x,y) + f_x \Delta x + f_y \Delta y + \frac{1}{2}(f_{xx} \Delta x^2 + 2 \times f_{xy}\Delta x \Delta y + f_{yy} \Delta y^2)
+> $$
+> 
+> In order to compact all our partial derivatives into a single term, we can use the definition of the **Hessian matrix**, which is a matrix containing all second-order partial derivatives of a function $f$. In our two-dimensional case, we have:
+> 
+> $$
+> H = \begin{bmatrix}f_{xx} & f_{xy} \\ f_{yx} & f_{yy}\end{bmatrix}
+> $$
+> 
+> The final step for simplification is made by showing that we can obtain the same quadratic term as above using the following expression:
+> 
+> $$
+> (\Delta \theta)^T H \Delta \theta = \begin{bmatrix}\Delta x & \Delta y\end{bmatrix} \begin{bmatrix}f_{xx} & f_{xy} \\ f_{yx} & f_{yy}\end{bmatrix}\begin{bmatrix}\Delta x \\ \Delta y\end{bmatrix} = f_{xx}(\Delta x)^2 + 2f_{xy}(\Delta x \Delta y) + f_{yy}(\Delta y)^2
+> $$
+> 
+> Meaning we can wrap this all up by writing the general form for a quadratic approximation of a multi-variable function as:
+> 
+> $$
+> f(\theta + \Delta \theta) \approx f(\theta) + \nabla f(\theta)^T \Delta \theta + \frac{1}{2}((\Delta \theta)^T H \Delta \theta)
+> $$
+
+In general, if we have a quadratic or non-convex function, the convergence using the gradient descent method may be too slow. In order to simplify this, we can use Taylor's theorem to obtain a quadratic approximation for our function $L(D,\theta)$ around $\theta$ itself:
+
+$$
+L(\theta_{k+1}) \approx L(\theta_k) + \nabla L(\theta_k)(\theta_{k+1}-\theta_k) + \frac{1}{2}(\theta_{k+1}-\theta_k)^T H(\theta_{k+1}-\theta_k)
+$$
+
+This is just the application of Taylor's theorem to obtain a quadratic approximation for our multi-variable function, considering $a=\theta$ and $h=\theta_{k+1}-\theta_k$.
+
+Outside of being useful for convergence reasons, Taylor's quadratic approximation can also help us to compute an optimal $\eta_k$, the learning rate at our iteration $k$, since we've seen before that a correct estimation is important to make the gradient descent converge faster. In particular, we previously saw that one iteration of our gradient descent algorithm returns the following parameters:
+
+$$
+\theta_{k+1} = \theta_k - \eta_k \nabla L(\theta_k)
+$$
+
+If we substitute this in the previous expression, we obtain the following formula:
+
+$$
+L(\theta_{k+1}) \approx L(\theta_k) - \eta_k ||\nabla L(\theta_k)||^2 + \frac{1}{2} \eta^2_k \nabla L(\theta_k)^T H_k \nabla L(\theta_k)
+$$
+
+So, rewriting for $\eta_k$:
+
+$$
+\eta_k = \frac{||\nabla L(\theta_k)||^2}{\nabla L(\theta_k)^TH_k\nabla L(\theta_k)}
+$$
+
+We can also simplify our above expression a bit. Since we are aiming to find a point of global minima, we can set the derivative of $L$ w.r.t. $\theta_k$ as being equal to $0$ (which is the definition of a stationary point). This allows us to simplify the term $\nabla L(\theta_k) + H_k(\theta_{k+1}-\theta_k) = 0$, getting the rule for the **Netwon-Raphson Method**:
+
+> [!NOTE] Newton-Raphson Method:
+> 
+> $$
+> \theta_{k+1} = \theta_k-H_k^{-1} \nabla L(\theta_k)
+> $$
+> 
+> In pseudocode:
+> 
+> ```
+> initialize new_theta, theta, K, epsilon
+> for k in range(0, K-1):
+> 	new_theta = theta - hessian_k_inverse * gradient_L(theta)
+> 	if |gradient_L(theta) - gradient_L(new_theta)| < epsilon:
+> 		 break
+> 	theta = new_theta
+> ```
+
+The Newton-Raphson method allows for faster convergence, but it has a catch: the computation of the Hessian inverse is computationally expensive, and if it is badly conditioned then convergence may be problematic. Here, as an example, is the difference between steepest descent (red) and the netwon-raphson (black):
+
+![newton vs steepest | center](https://i.imgur.com/XzsPidR.png)
+
+We can also see a difference for quadratic obectives and non-convex objectives: in the second case, the Hassian inversion has a lot of numerical instabilities:
+
+![quadratic objective | center](https://i.imgur.com/G3RuxZk.png)
+
+![non-convex objective | center](https://i.imgur.com/Ok4SGmi.png)
+
+Since these methods can be hard to compute, some more lightweight line-search methods are usually preferred to find an approximate good step size at each iteration, like [backtracking](http://fa.bianp.net/teaching/2018/eecs227at/gradient_descent.html). Other strategies just decrease $\eta_k$ at each iteration, like cosine annealing.
+
+## Support Vector Machine
+
+Support Vector Machines (SVMs) are a state-of-the-art technique used to solve problems that are non-linearly separable.
+
+The idea of SVMs arises from a series of open problems in the linear function field. 
+
+1. The first one can be stated like this: say that we have a classification problem with two classes that are linearly separable, meaning that we can use a linear discriminant function to label samples. However, there might be several candidates for a "good" function in a single hyperplane:
+
+	![multiple valid functions | center](https://i.imgur.com/cElEhwy.png)
+
+	So, the first problem is: how can we choose the best linear function among the infinite number of them?
+2. The second one is about outliers: if we have a problem that is linearly separable, but finding an optimal solution forces us to have a "bad" linear function, how can we define a "relaxation" to allow some samples to be misclassified, in exchange of having a simpler linear function? For example, here we might want to leave the "outlier" `x` outside of the correct cluster:
+   
+   ![](https://i.imgur.com/8fFS3ra.png)
+3. The third and last one is about non-linearly separable problems. For example, in this case there is no possible singular linear function that allows us to correctly label all of our data:
+   
+   ![non-linearly separable | center](https://i.imgur.com/5ohNTqD.png)
+
+So, how do SVMs go on to solve these problems?
+
+### Maximum Margin
+
+The notion of "**Maximum Margin**" helps us solving the first problem, which states: "_how can we choose the best linear function among the infinite number of them?_". Following the example above, the black non-dotted line in the picture is the margin that would be chosen by an SVM as the correct one:
+
+![SVM Maximum Margin | center](https://i.imgur.com/EEzoMDZ.png)
+
+We can see that the black line is the function that creates the widest possible "gap" between the two clusters. Finding a maximum margin is only possible, in this case, if the data is linearly-separable (otherwise we would fall into problem $3$, which will be described later).
+
+In this case, the SVM is able to find the best margin by first define so-called "_support vectors_", which are the training samples circled. These are essentially the points that are "the closest" to the other class and "at the margin" of the cluster of samples with the same class label. Note that because of this definition SVMs are able to define boundaries just thanks to these points, while the others are able to move freely (if they do not cross the boundary).
+
+If we want to write this in formulas, we might want to say that the two class labels for red and blue are, respectively, $+1$ and $-1$:
+
+$$
+y_0 = +1, y_1 = -1
+$$
+
+This will be useful later on.
+
+In our example, the dotted lines are linear functions that can be expressed in terms of $w,b$ in the following way:
+
+$$
+w \cdot x_1 + b = 1, w \cdot x_2 + b = -1
+$$
+
+Where $x_1,x_2$ are the points that are sitting on the dotted line on the red and on the blue class, respectively (our support vectors). Since we said that we aim to find the maximum margin, that is, the line with the widest gap between the two classes, this operation would amount to finding the line that passes _exactly_ in the middle of our two functions that pass through the SVs. To do this, we need to compute the Euclidean distance between the two lines using the following formula:
+
+$$
+\text{Margin} = (x_1-x_2) \cdot \frac{w}{||w||} = \frac{w \cdot x_1 - w \cdot x_2}{||w||} = \frac{(1-b)-(-1-b)}{||w||} = \frac{2}{||w||}
+$$
+
+Note that $||w||$ is the norm of the weight vector $w$, which is equal to:
+
+$$
+||w|| = \sqrt{\sum_{j=1}^d w_j^2}
+$$
+
+Now, since we want to find the line that is the furthest away for both classes, we would like to _maximize_ this margin. We can reframe this problem to make it computationally easier if we said that, instead, we would like to _minimize_ the value of $||w||$ (as it is the same logic, since $||w||$ is a denominator term, minimizing it implies maximizing the fraction). To make computation even easier for computers we can state our problem by saying that we want to minimize the following term (which is still the same as saying that we want to maximize $\frac{2}{||w||}$):
+
+> [!NOTE] Minimization problem for SVMs
+> 
+> $$
+> \text{min}_{w,b} L = \frac{1}{2}||w||^2 \text{, s.t. } y_i f(x_i) \geq +1, \forall i
+> $$
+> 
+> Where $s.t. y_i f(x_i) \geq +1, \forall i$ (`s.t` = "subject to") is a constraint to ensure that samples are not misclassified, since they must not cross the boundaries determined by the support vectors.
+
+To solve this minimization problem, we can use the _Lagrangian_ to use **Lagrange's Optimization Technique**. We start by writing the Lagrangian ($L$), which combines the function to be minimized with our constraints:
+
+> [!NOTE] Lagrangian Function for SVMs
+>
+>$$
+> L = \frac{1}{2}||w||^2 - \sum_{i=1}^t \alpha_i[y_i(w \cdot x_i + b)-1]
+> $$
+> 
+> The right side with the summation operator acts as a "penalty" system, where:
+> 
+> - $y_i(w \cdot x_i + b)-1$ is the value of the classification function for a certain sample $x_i$, multiplied by the correct class label. This is used to represent "how much" the classifier has classified correctly the label. We subtract by $1$ so that if the classification is correct, we get $1-1=0$ (no penalty), or a negative value otherwise
+> - $\alpha_i$ is a "_Lagrange Multiplier_", which is used to assign a heavier penalty in case of misclassification
+
+Now, we aim to find the _maximum values_ for our Lagrangian multipliers $\alpha_i$, so that the Lagrangian function gets the minimum value:
+
+$$
+\text{max}_{\alpha_1, \dots, \alpha_l} \text{ min}_{w,b} L(\alpha_1,\dots,\alpha_l,w,b) \text{, s.t. } \alpha_i \geq 0, i=1,\dots,N
+$$
+
+Once the optimization finds the optimal point, the derivative of $L$ w.r.t. $w,b$ is nullified (as we've reached a stationary point), returning:
+
+$$
+w = \sum_{i}\alpha_iy_ix_i, \sum_i \alpha_iy_i=0
+$$
+
+If we substitute this into our original Lagrangian function, we obtain what's called the "dual problem for the hard-margin SVM":
+
+> [!NOTE] Dual Problem for the Hard-Margin SVM
+> 
+> $$
+> \text{max}_\alpha \sum_i \alpha_i-\frac{1}{2} \sum_{i,j}y_i\alpha_i x_i^T x_j \alpha_j y_j \text{, s.t. } \alpha_i \geq 0, \forall i, \sum_i \alpha_i y_i = 0, \forall i
+> $$
+
+To solve this maximization problem, we can calculate again the Lagrangian:
+
+$$
+L_D(\alpha) = \sum_i \alpha_i - \frac{1}{2}\sum_{i,j}y_i\alpha_ix_i^Tx_j\alpha_jy_j
+$$
+
+Whose optimal solution is given by the following hyperplane:
+
+$$
+\sum_{i=1}^l y_i\alpha_i (x_i \cdot x) + b = 0
+$$
+
+However, note that all samples have an $\alpha_i=0$, except for _support vectors_. This is the mathematical representation of what was written at the beginning: SVMs rely only on support vectors for their calculation, while the other points can move freely as long as they do not cross the lines.
+
+### Soft Margin
+
+**Soft Margins** are the solution for the second problem we proposed: "_if we have a problem that is linearly separable, but finding an optimal solution forces us to have a "bad" linear function, how can we define a "relaxation" to allow some samples to be misclassified, in exchange of having a simpler linear function?_"
+
+In order to do this, we need to find a way to add a sort of "trade-off" to our formula between margin and loss on training data. To do this, we use a hyperparameter $C$:
+
+> [!NOTE] Hyperparameter $C$ for Soft-Margin SVM
+> 
+> $$
+> \text{min}_{w,b,\xi_i} \frac{1}{2}||w||^2 + C \sum_i \xi_i \text{, s.t. } y_i f(x_i) \geq 1 - \xi_i, \forall i\ \ \xi_i \geq 0, \forall i
+> $$
+> 
+> Where $\xi_i$ is called a "slack variable", which defines "how far" a sample lies with respect to the support vector of the correct class:
+> 
+> ![slack variable | center](https://i.imgur.com/U7rjjK3.png)
+
+Tuning the hyperparameter $C$ now allows us to define a "relaxation" for SVMs: smaller values of $C$ allow for simpler classification functions:
+
+![C hyperparameter | center](https://i.imgur.com/wfqw1cL.png)
+
+We specified two constraints for our hyperparameter:
+
+1. $\xi_i \geq 1 - y_i f(x_i)$
+2. $\xi_i \geq 0$
+
+We can however rewrite them into
+
+$$
+\xi_i = \text{max}(0,1-y_i f(x_i))
+$$
+
+This expression, however, is the same as that of the _hinge loss_: this means we can use it to have an unconstrained version of the first problem (without having to abuse the Lagrangian):
+
+> [!NOTE] Simplified hyperparameter problem
+> 
+>$$
+>\text{min}_{w,b}\frac{1}{2}||w||^2 + C \sum_i \text{max}(0,1-y_if(x_i))
+>$$
+
+We said that, in order to make this minimization problem work, we need to follow a couple of constraints:
+
+1. The derivative of the Lagrangian with respect of $w$ must be zero: $w_v - \sum_i \alpha_i y_i x_{iv}=0$
+2. The derivative of the Lagrangian with respect of $b$ must be zero: $-\sum_i \alpha_i y_i=0$
+3. Finally, we must also make sure that the derivative of the Lagrangian with respect to our new hyperparameter $\xi_i$ is zero: $C-\alpha_i-\mu_i=0$.
+
+We can put all these into the initial Lagrangian:
+
+$$
+L_P = \frac{1}{2}||w||^2 + C\sum_i \xi_i - \sum_i\alpha_i \{y_i(x_i \cdot w + b) - 1 + \xi_i\} - \sum_i \mu_i\xi_i
+$$
+
+Plugging our constraints in, we obtain a very similar equation to that for hard margins SVMs:
+
+> [!NOTE] Dual form of the Soft-margin SVM
+> 
+> $$
+> \text{max}_\alpha \sum_i \alpha_i - \frac12 \sum_{i,j} y_i \alpha_i x_i^T x_j \alpha_j y_j \text{, s.t. } 0 \leq \alpha_i \leq C, \forall i\ \ \ \sum_i \alpha_i y_i =0, \forall i
+> $$
+
+The reason why SVMs only detect a couple of support vectors is that the maximization problem has a _sparse_ solution, meaning that a lot of $\alpha$ values will be equal to $0$. Specifically, in a dataset like this:
+
+![dataset sample svm | center](https://i.imgur.com/IvwNNuv.png)
+
+We can have three possible points:
+
+1. Those that are not circled, being samples that are correctly classified
+2. Those that are circled, which act as support vectors, and are used to calculate the soft margin
+3. Those that cross the support vector (not present in the picture), that fall into the accepted margin of error defined by the hyperparameter $C$.
+
+All these can be represented mathematically using **Karush-Kuhn-Tucker equilibrium conditions**:
+
+> [!NOTE] Karush Kuhn Tucker equilibrium conditions
+> 
+> $$
+> g_i = \frac{\delta W}{\delta \alpha_i} = \sum_j Q_{ij} \alpha_j + y_ib -1 = y_i f(x_i) - 1
+> $$
+> 
+> $$
+> \frac{\delta W}{\delta b} = \sum_j y_j \alpha_j = 0
+> $$
+> 
+> In particular, the value of $g_i$ can be:
+> 
+> 1. $g_i \geq 0 \implies \alpha_i =0$, for _reserve vectors_ (case $1$ of possible points)
+> 2. $g_i=0 \implies 0 < \alpha_i < C$, for margin _support vectors_ (case $2$)
+> 3. $g_i \leq 0 \implies \alpha_i = C$, for _error support vectors_ (case $3$)
+
+To solve both primal and dual SVM learning, we can use **Quadratic Programming solvers**, which are standard and efficient. However, there are now more modern solvers specifically for SVMs, like **Sequential Minimal Optimization (SMO)**, which, however, does not scale well for very large training sets, which is the reason why modern techniques prefer optimizing the primal form using **Stochastic Gradient Descent (SGD)**, which works like this:
+
+1. Set the learning rate $\eta$
+2. Repeat until an approximate minimum is obtained, by:
+	1. Randomly selecting $K$ samples from the training set
+	2. Updating the parameters $w'=w-\eta \nabla L$
+
+This type of algorithm (and its variants) is very efficient and incremental, allowing to load data in batches instead of having to load all the dataset, and allows to satisfy the convergence constraint in practice, but parameters can be difficult to tune.
+
+### Kernel Trick
+
+Now that we've seen how to surpass the two most common problems of linear classifiers, we are left to deal with the last one: "_how can we use linear classifiers for non-linearly-separable problems?_"
+
+We must start by saying that classical SVMs as we've seen can actually deal with these class of problems, although they show poor performances. To increase efficiency, we can exploit the so-called "**Kernel Trick**", but how?
+
+![Non-linearly-separable problem | center](https://i.imgur.com/xnsqqtm.png)
+
+One common solution that is used in cases where data isn't linearly separable is to _transport it into higher dimensions_. This is stated as **Cover's Theorem**:
+
+> [!NOTE] Cover's Theorem
+> 
+> _A complex pattern-classification problem cast in a high-dimensional space non-linearly is more likely to be linearly separable than in a low-dimensional space_
+
+ As an example, imagine having a set of data in two spacial dimensions (so one feature) that isn't linearly separable, like this:
+
+![poor performance svm | center](https://i.imgur.com/hugGxDL.png)
+
+Here, an SVM performs poorly, since it can't find no singular line to clearly separate the two classes. However, we can imagine to "transport" this problem into a 3-dimensional space where it can solved more easily, while at the same time _keeping_ the structure of the data intact. This can be done through a _feature map_, which acts as a "translation function" for a data sample into an higher dimension. For example, imagine that we had the following feature map:
+
+$$
+\phi((a,b)) = (a,b, a^b+b^2)
+$$
+
+Meaning that any point with coordinates on the 2D plane of $(x,y)$ will have coordinates $(x,y,x^2+y^2)$ on our 2D plane. Note that, since we are not changing the relation between $x$ and $y$, the new plane still acts as a loyal representation of our training set. So why is this useful? Because in higher dimensions we are always able to find a _hyperplane_ which is able to linearly separate the data, given a good enough feature map, like this one:
+
+![feature map | center](https://i.imgur.com/iVWWuwM.png)
+
+This allows us to treat non-linearly-separable problems as if they were separable, skipping the need for polynomial and non-linear functions.
+
+This technique, however, has one constraint: when treating billions or trillions of training sample in spaces which are in the order of the thousands of dimensions makes applying the feature map computationally unfeasable. The kernel method is designed to bypass this caveat.
+
+To understand its implications, we start by recalling the dual SVM formulation:
+
+$$
+\text{max}_\alpha \sum_i \alpha_i -\frac12 \sum_{i,j} y_i \alpha_i x_i^T x_j \alpha_j y_j \text{ s.t. } 0\leq \alpha_i \leq C, \forall i\ \ \ \ \sum_i \alpha_i y_i = 0, \forall i
+$$
+
+Once $\alpha$ is found, we have our classification function:
+
+$$
+f(x) = w^T x + b = \sum_i y_i\alpha_i x_i^Tx + b
+$$
+
+If we take a closer look at both of these equations, we see that the data samples $x_i$ are never considered by themselves: instead, they are always shown as a _dot product_ with another sample ($x_i^Tx$ and $x_i^Tx_j$). This is important because it allows us to use so-called **Kernel Functions**:
+
+> [!NOTE] Kernel Functions
+> 
+> A Kernel functions is a function in the form:
+> 
+> $$
+> k(x_i, x_j) = \phi(x_i)^T \phi(x_j)
+> $$
+> 
+> Where $\phi(x)$ is a feature map that translates a spatial point into higher dimensions.
+
+In order to be acceptable, kernel functions must also validate some constraints:
+
+> [!NOTE] Kernel Functions Constraints
+> 
+> 1. **Mercer's Condition**: the function $k(x_i,x_j)$ must correspond to a scalar product in some other space
+> 	- _This condition is set in order to satisfy the assumption of a kernel function being a "shortcut" to the calculation of a scalar product in higher dimensions_
+> 2. Kernel functions are symmetric and positive semi-definite (PSD) if:
+>    
+>    $$
+>   \sum_{i,j=1}^n c_ic_jK(x_i,x_j) \geq 0 \text{, for any } n \in N, x_1,\dots,x_n \in X, c_1,\dots,c_n \in R
+>   $$
+> 	  - _This condition ensures that the higher-dimensional space defined by $K$ is actually coherent and exists_. However, this condition _can_ be relaxed, since SVMs also converge when a kernel is non-PSD, although the problem is not convex anymore.
+
+Once we have defined our kernel function, we just replace every instance of our dot product with it, in order to translate our classification problem into higher dimensions where the data is linearly separable:
+
+$$
+\text{max}_\alpha \sum_i \alpha_i -\frac12 \sum_{i,j} y_i \alpha_i k(x_i^T,x_j) \alpha_j y_j \text{ s.t. } 0\leq \alpha_i \leq C, \forall i\ \ \ \ \sum_i \alpha_i y_i = 0, \forall i
+$$
+
+$$
+f(x) = w^T x + b = \sum_i y_i\alpha_i k(x_i^T,x) + b
+$$
+
+So, our new SVM performs in the following way:
+
+1. Maps the data of the input vector $x$ into an high-dimensional space, hidden from the inputs or the outputs
+2. Constructs an optimal hyperplane that separates the data optimally in the new, high-dimensional space
+
+> [!NOTE] Common Kernel Functions
+>
+> Some common kernel functions are:
+> 
+> 1. The **polynomial kernel**:
+>   
+>    $$
+>   K(x_i, x') = (1+x_i^Tx')^d \text{ with } d= \text{the number of dimensions}
+>   $$
+>    
+>    Before application:
+>    
+>    ![pre-kernel | center](https://i.imgur.com/GLglZlq.png)
+>
+>    After application ($d=2$):
+>	
+>    ![post-kernel | center](https://i.imgur.com/PtmEM4p.png)
+>
+>
+> 2. The **Gaussian Kernel** (Radial Basis Function, RBF)
+>    
+>    $$
+>   K(x_i,x')=e^{-\lambda(x_i-x')^2} 
+>   $$
+>  
+>    ![rbf | center](https://i.imgur.com/m0ldL4q.png)
+ 
+### Regularizers and Sparcity
+
+The primal SVM problem:
+
+$$
+\text{min}_{w,b} C \sum_i \text{max}(0,1-y_i f(x_i)) + \frac12 ||w||^2
+$$
+
+can also be seen as an instance of a more general problem of linear classifiers:
+
+$$
+\text{min}_{w,b} \frac1n \sum_{i=1}^n l(y_i,f(x_i)) + \lambda \Omega(w)
+$$
+
+Which is the formula for minimizing the generalization error on test data. To go into more details, $\Omega(w)$ is called a "**regularizer**", which acts as a mathematical penalty to avoid overfitting on complex functions. This is done by making sure that the number of weights $w$ doesn't get too high. To allow algorithms to minimize regularizers more easily, they are usually expressed in the form of _convex functions_. There are several types of regularizers, but all of them are generally expressed in the form of norms, called $l_p$ norms:
+
+> [!NOTE] $l_p$ norms
+> 
+> $$
+> l_p(w)=(\sum_j |w_j|^p)^{\frac1p} \text{, with } p \geq 1
+> $$
+
+$|w_j|$ is the mathematical operation of the _absolute value_, and $w_j$ is one of the weights of the classification algorithm. The idea of $l_p$ norms is to penalize functions that have higher values for the weights and a very high amount of them (because the sum increases). The different values of $p$ are used to incur higher or smaller values of $\Omega(w)$: if $p$ is smaller, then regularizers incur greater penalties for classifiers that have some single weights that are much bigger then the others, while higher values of $p$ tend to prefer classification functions where the value of weights is "spread out". For example, if we had two models, $A$ and $B$ with weights $w_{A1}=10, w_{A2}=0$ and $w_{B1}=5,w_{B2}=5$, then the values of the $l_1$ and $l_2$ norms are:
+
+$$
+l_{1A} = |10| + |0| = 10,\ l_{1B} = |5| + |5| = 10
+$$
+
+$$
+l_{2A} = \sqrt{10^2 + 0^2} = 10,\ l_{2B} = \sqrt{5^2 + 5^2} \approx 7.07
+$$
+
+We can see that taking the $l_1$ norm makes $\Omega(w)$ penalize both models equally. However, the $l_2$ norm treats model $A$ as more complex then $B$, since the weights are not as "spread out" as $B$'s. This concept of enforcing many values of the weights to be zero is called "**sparcity**", and is enforced by $l_0$ and $l_1$ norms:
+
+![sparcity | center](https://i.imgur.com/c1SbU9l.png)
+
+
+The most popular example of norms are:
+
+- $l_0$, which is not convex, and amounts to counting all non-zero elements in $w$
+- $l_1$ = $|w_1|+|w_2|+\dots+|w_d|$
+- $l_1$ = $w_1^2+w_2^2+\dots+w_d^2$
+- $l_\infty = \text{max}_j |w_j|$
+
+Graphically:
+
+![lp norms | center](https://i.imgur.com/Pa6JNUx.png)
+
+### Multiclass Linear Classifier
+
+If we take the most general version of a linear classifier:
+
+$$
+f(x) = w^T x + b
+$$
+
+we can see that it can be adapted to be used for multiclass problems as well. Graphically:
+
+![multiclass linear classifier | center](https://i.imgur.com/vLMZpq7.png)
+
+The idea is that we can make the classifier output one score per class: 
+
+$$
+f(x) = (s_1, \dots, s_k)
+$$
+
+Then, outputs are _softmax scaled_. The softmax function is:
+
+$$
+s' = \frac{1}{1+e^{-s}} \to s_l' = \frac{e^{s_l}}{\sum_j e^{S_j}}
+$$
+
+Then we calculate the cross-entropy loss:
+
+$$
+L(y_i, f(x_i)) = -\log(s'_{y_i})
+$$
+
+To end up with a result like this:
+
+![softmax classifier | center](https://i.imgur.com/y0wR8HK.png)
+
+### Multiclass Classification with Binary Classifiers
+
+Binary classifiers can also be adapted to work for multiclass problems: since a sample can be part of only one of $c$ classes, we can use two different strategies.
+
+The first one is called **One-vs-all** (OVA, or one-versus-rest, OVR): we train one binary classifier for each of the $k$ class. Samples that have $y=k$ are labeled as $+1$, while all the others are labeled as $-1$. Graphically:
+
+![OVA | center](https://i.imgur.com/uAx9Dxh.png)
+
+We then combine them all using 
+
+$$
+y = \text{argmax}_k\ f_k(x)
+$$
+
+![OVA classifier | center](https://i.imgur.com/3qPH0Y2.png)
+
+This strategy has the advantage of being trained with one classifier per class, and thus uses all the data.
+
+The second strategy is the **One-vs-one**: we train a binary classifier for class $i$ vs $j$. We then consider all possible pairs, which are $c(c-1)/2$ in total. They are then combined as:
+
+$$
+f(x) = \text{argmax}_i (\sum_j f_{ij}(x))
+$$
+
+This strategy has a combinatorial number of classifiers, and is thus trained on smaller data subsets. The accuracies of the two classification strategies are almost equivalent, but there is a trade-off between the number of classifiers and the complexity of the algorithm.
+
+### Regression
+
+So far, we have used the loss function to assign a penalty if the label of a class is given incorrectly: for example, the hinge loss gives $0$ penalty to points for which $yf(x) \geq 1$. For regression problems, however, the loss is zero only if $f(x) = y$. One famous regression algorithm is called "**Ridge Regression**":
+
+> [!NOTE] Ridge Regression
+> 
+> The ridge regression uses the mean squared error (MSE) as the error function, and $l_2$ as the regularization for the feature weights:
+> 
+> $$
+> L(w) = \frac{1}{2n}||Xw-y||^2 + \lambda||w||^2
+> $$
+
+By minimizing $L(w)$ we get the following closed-form solution:
+
+$$
+w = (X^T X + \lambda I)^{-1} X^T y
+$$
+
+Where $I$ is the identity matrix, and $\lambda > 0$ a trade-off parameter. Its use is to add a diagonal to the matrix $X^TX$, which is positive semi-definite, to make it more stable when pseudo-inverted. However, this operation is almost always too computationally demanding for large datasets, so gradient-descent procedures, like SGD, are preferred.
+
+If we change the regularization term to $l_1$ we get the **Least Absolute Shrinkage and Selection Operator (LASSO)** algorithm:
+
+$$
+L(w) = \frac{1}{2n} ||Xw - y||^2 + \lambda||w||_1
+$$
+
+Combining both regularization techniques is used by the **Elastic Net**, to overcome some problems when we have badly-conditioned problems:
+
+$$
+L(w) = \frac{1}{2n} ||Xw - y||^2 + \lambda||w||_1+ \lambda_2 ||w||_2^2
+$$
+
+> [!HELP] Exercises
+> 
+> TODO
+
+# Neural Networks
+
+> [!NOTE] Note
+> 
+> This first part about neural networks is almost identical to the one made for the course of machine learning, so some arguments are represented more quickly
+
+Neural Networks are born from the idea of **perceptrons**, which are an abstraction of the idea of a neuron: units that fire off after a certain activation condition is met:
+
+![perceptrons | center](https://i.imgur.com/jY548EC.png)
+
+Perceptrons are effectively linear classifiers, where $f(x) = w^T x + b$ is the linear discriminant function. The learning algorithm thus amounts to minimizing the value of $w,b$ to "fire" the perceptron. The loss function, in this case, is the perceptron loss:
+
+$$
+L(w,b) = \sum_i \text{max}(0,y_i f(x_i)) = -\sum_{i:y_if(x_i)<0}y_i f(x_i)
+$$
+
+Where $i$ indexes are the misclassified samples. We minimize it using the gradient descent method:
+
+$$
+\nabla_w L(w,b) = -\sum_{i:y_i f(x_i)<0}y_i x_i
+$$
+
+$$
+\nabla_b L(w,b) = -\sum_{i:y_i f(x_i)<0}y_i
+$$
+
+And thus the learning algorithm is very similar to that of linear classifiers:
+
+```
+function learning({x_i,y_i})
+	randomly initialize w,b
+	repeat
+		for i=1,...,n
+			if y_if(x_i) < 0
+				w <- w - n partial_derivative_w(L(w,b))
+				b <- b - n partial_derivative_b(L(w,b))
+	until a stopping condition is satisfied
+	return w,b
+```
+
+Where $n$ (actually, $\eta$) is the learning rate. Since a perceptron is a linear classifier, the perceptron learning algoruthm always converges to a consistent hypothesis after a _finite_ number of epochs, if $\eta > 0$ and if the training set is linearly separable (usually we have $\eta = 1$). If the training set, however, is not linearly separable, weighs start oscillating after $n$ epochs.
+
+Perceptrons fell out of favor after the realization that they were unable to represent non-linear functions, and that they gave a too-oversimplified explanation of the human neuron. In reality, neurons are often wired between them in so called **Neural Networks**. ANN (Artificial Neural Networks) are made up of interconnected perceptrons, and are able to represent non-linear discriminant functions.
+
+Interest in ANNs was lost in the 1970s due to some technical limitations, but it was recovered in the 1980s with the following discoveries:
+
+- Instead of generating a layer architecture every time, we use some common ones that are known to work
+- To improve the learning algorithm, feed-forward networks and continuous activation functions can be used
+
+The most common activation functions for ANNs are the sigmoid:
+
+$$
+\sigma(x) = \frac{1}{1+e^{-f(x)}} \in (0,1)
+$$
+
+and the hyperbolic tangent:
+
+$$
+\sigma(x) = \frac{e^{f(x)}-e^{-f(x)}}{e^{f(x)}+e^{-f(x)}} \in (-1,1)
+$$
+
+Then, the individual perceptron units with these activation functions are arranged into _layers_, in the following way:
+
+1. One single _input_ layer, which are fictitious units corresponding to inputs
+2. One output layer, which can consist of one unit for two-class problems, or $c$ units for $c$-class problems ($c > 2$)
+3. One or more _hidden layers_
+
+Each unit receives inputs from the previous layer (hence the name "feed-forward"), and the output of a layer is the input of the next one. These network are thus usually **fully-connected**, like this:
+
+![MLP | center](https://i.imgur.com/pjkPPqb.png)
+
+We can see that the final classification function is the result of the _composition_ of the activation function of the individual layers:
+
+$$
+f(x;\theta) = g_3(\cdot;w_3,b_2) \circ g_2(\cdot;w_2,b_2) \circ g_1(x;w_1,b_1)
+$$
+
+Where $g$ is a generic continuous activation function:
+
+$$
+g(\cdot; W, b) = \sigma(Wx+b)
+$$
+
+But since $\sigma$ is a continuous function, we convert it to a class label by defining a certain threshold, like this:
+
+$$
+\text{label} = \begin{cases}-1 & \text{if } \sigma(x) < 0.5 \\ +1 & \text{otherwise}\end{cases}
+$$
+
+We can also generalize the two-class problem to a multi-class problem using the _softmax_ approach:
+
+$$
+p(y=j\ | \ x) = \frac{e^{f_j(x)}}{\sum_{k=1}^ce^{f_k(x)}}
+$$
+
+However, since the target function is usually not known in real cases, the best MLP arcihtecture is not known a priori, and is instead built using a trial-and-error approach, starting with a small network (one hidden layer and a couple of units) and adding complexity as the problem becomes more complex.
+
+## Back-Propagation Learning
+
+One of the most efficient learning algorithm for ANN is the **Back-Propagation Learning**. The idea is to exploit the fact that, since the activation functions for individual perceptrons are both continuous and differentiable, the network output function will also have the same property. This means that we can use a _loss function_ that is continuous and differentiable, and then minimize it using **gradient descent**.
+
+> [!NOTE] Back-Propagation Learning
+>
+> The back-propagation learning algorithm consists of two steps:
+> 
+> 1. First is the **forward step**: we compute the output function of the ANN for a given input (that is, we just pass a sample to our network and see the result). We then compute our _loss function_ for this given input
+>
+>	![Forward step | center](https://i.imgur.com/LceQanl.png)
+>
+> 2. Then is the **backward pass**. In order to apply the gradient descent, we need to compute the derivative of our loss function $L$ with regards to the parameter $w$. To do this, we can exploit the fact that the final loss function $L$ can be rewritten via composition:
+> 
+>	![backward pass | center](https://i.imgur.com/cyO9kNZ.png)
+>
+>	Meaning that the final derivative is:
+>
+>	$$
+>	\frac{dL}{dw} = ((\frac{dL}{d\sigma} \cdot \frac{d\sigma}{df})\cdot \frac{df}{dw})
+>	$$
+>	
+>	This is because the derivative of a composite function is equal to the product of the composed functions, per the chain rule.
+
+In pseudocode:
+
+```
+back-propagation(T):
+	randomly chose the weights w
+	repeat
+		for each (x^k,t_k) in T do
+			compute the output y(x^k) // forward propagation
+			update the weights w // back propagation
+		end for
+	until a stop condition is satisfied
+	return w
+```
+
+However, we need to prevent two problems:
+
+1. Error functions have many local minima, so it is not guaranteed that if the back-propagation algorithm converges to a value, then the value found is also a global minima
+	- To prevent this, we execute the same algorithm starting from different random weights, and then take the solution with the smallest error
+2. NNs are prone to over-fitting
+	- To prevent this, we set a stop condition to halt the algorithm early. For example, we can use two set, one for validation and one for training. Then we compute the error on the validation step and stop if the two are too distant, like in this case, where the vertical line represents the optimal stopping condition:
+	  
+	  ![stop condition for overfitting | center](https://i.imgur.com/59rrBtA.png)
+
+	- We can also avoid overfitting by using a regolarized objective function, like for linear classifiers:
+	  
+	  $$
+	   E(w) = \frac{1}{2n} \sum_{i=1}^n(\alpha(x_i) -y_i)^2 + \lambda \Omega(w)
+	   $$
+
+## Deep Neural Networks
+
+Deep Neural Networks (DNNs) are an evolution of ANNs. They are, in fact, neural networks, but they work with many hidden layers:
+
+![DNN | center](https://i.imgur.com/0rjwTAX.png)
+
+The advantage of DNNs is that they are able to learn not only to _classify_ data, but also the core **feature representation** of data itself.
+
+The first problem that came out in the design of DDNs is the **vanishing gradient problem**: the gradient descent method used for ANNs requires taking the derivative of the sigmoid function (or, in general, any activation function). However, the back-propagation step ends up propagating a lot more times in DNNs (since there are many hidden layers), and since the gradient of $\sigma$, which is $z(1-z)$, is closer to $0$ than $z$, the effect is that the gradient tends to become zero going back, and this slows down the training of initial layers.
+
+This problem is solved by using a **Rectified Linear Unit (ReLU)** activation instead of the sigmoid:
+
+![](https://i.imgur.com/9jyKked.png)
+
+## Convolutional Neural Networks
+
+An important application of DNNs is found in the field of computer vision tasks, where some specialized applications, named **convolutional neural networks (CCNs)**, have been proposed.
+
+These networks work by taking as input, for example, a _raw image_, arranging its pixels into an array. CNNs, however, are not fully-connected (in contrast to common ANNs), since the idea is to use the **spatial adjacency** between pixels to recognize figures and other features.
+
+Basically, each hidden unit of a CNN works by operating different image processing operations. these operations allow us to make a distinction into two different kinds of layers:
+
+- **Filtering** layers, whose connection weights are learnt, and have the job of "transforming" the data for the next layers
+  
+  ![filters | center](https://i.imgur.com/8LMxnu0.png)
+
+- **Pooling** layers, which have some predefined connection weights, and are supposed to carry out a _downsampling_ operation on the outputs of the previous layers. Their goal is to "simplify" the architecture by considering a "smaller" or "more generalized" subset of data
+
+  ![pooling | center](https://i.imgur.com/jQJ73Ws.png)
+
+Through optimization, the CNN learns many more complex and abstract notions:
+
+![CNN | center](https://i.imgur.com/ZM5ITLe.png)
+
+## Optimization
+
+The output function of a neural network is in the same form as that of common ANNs, but with more nested hidden layers:
+
+$$
+f(x;\theta)=g_k \circ g_{k-1} \circ \dots g_1(x;w_1,b_1)
+$$
+
+However, as we've seen before, the activation function of DNNs is typically _not convex_ w.r.t. $\theta = (w_1,b_1,\dots,w_k,b_k)$, meaning that the problem of optimization cannot be solved with the same techniques used for convex problems. Graphically, we can see the difference of a convex classification function for ANNs on the left and a non-convex one for DNNs on the right:
+
+![ANNs vs DNNs | center](https://i.imgur.com/2CTmmhg.png)
+
+To overcome this limitation, we use some variants of the gradient descent methods, which are still gradient-based but allow us to:
+
+- Load data in batches
+- Update the gradient for the current batch only, once per iteration
+
+The most popular methods to perform optimization include "Adam", "Adagrad", "RMSProp" and "Momentum".
+
+One of the most popular amongst these is "Momentum". The idea is to update the gradient $g_k$ as an average across multiple iterations, with weights $\beta$:
+
+$$
+v_k = \beta v_{k-1}+ g_k\ \ \ \ \ \theta_k = \theta_{k-1}-\eta_k v_k
+$$
+
+If we take $\beta=0$, this becomes essentially the same as the steepest descent method:
+
+$$
+v_k = g_k\ \ \ \ \theta_k = \theta_{k-1}-\eta_k g_k
+$$
+
+This is because $\beta$ acts as a parameter to "smooth" the objective function to facilitate convergence. Graphically we can see the difference between the application of the Stochastic Gradient Descent with and without momentum:
+
+![SGD with momentum | center](https://i.imgur.com/879fgzs.png)
+
+Other techniques to facilitate learning involve:
+
+- **Dropout**: which consists of randomly deactivating some neurons during training to prevent overfitting
+- **Batch normalization**: which consists of normalizing inputs so that they have zero mean and unit variance, which are estimated separately for each batch
+
+The hard work for DNN learning can nowadays be automatized with many open-source frameworks, such as **Tensorflow**, **PyTorch**, etc.
+
+> [!HELP] Libraries
+> 
+> This part is missing but is very short, it can be entirely recovered from the slides.
+
+## Adversarial Attacks
+
+DNNs, although inspired by the human brain, can actually be tricked much more easily via the use of **adversarial examples**, which are a set of attacks used to push a DNN towards misclassifying a sample:
+
+![adversarial example | center](https://i.imgur.com/aBlFvrm.png)
+
+These attacks exploit the inner mechanisms of DNNs, which aim to minimize the values of the error function by changing the parameters: 
+$$
+\text{min}_w L(D;w)
+$$
+
+Adversarial attacks are modeled in the exact same way, but they aim to **maximize** the error on the input data:
+
+$$
+\text{max}_w L(D;w)
+$$
+
+Say, for example, that we have the image of a parrot that is correctly classified by a DNN:
+
+![Correct classification | center](https://i.imgur.com/EVMUqkG.png)
+
+However, the maximization problem described above which is used by adversarial attacks can also be solved using _gradient-based optimizers_. The solution to this maximization creates an "**adversarial perturbation**", which, added to the original image, causes the DNN to misclassify the sample:
+
+![adversarial attack | center](https://i.imgur.com/H46Jj7v.png)
+
+We can formalize this attack as an optimization problem:
+
+$$
+\text{min}_{x'} g(x') \text{, s.t. } ||x-x'|| \leq \epsilon
+$$
+
+![projected gradient descente | center](https://i.imgur.com/DlenKYJ.png)
+
+## Beyond DNNs
+
+An evolution to the world of DNNs was introduced with the invention of **Generative Adversarial Networks (GANs)**:
+
+![GANs | center](https://i.imgur.com/j295rwV.png)
+
+They have a wide range of applications, in particular to image and text processing and manipulation:
+
+![image manipulation by a GNN | center](https://i.imgur.com/seMlCjk.png)
+
+# Performance Evaluation
+
+In the previous parts we described how it is theoretically possible to calculate the exact error probability in a limited number of special cases. However, since in real-world problems the decision regions are almost never known a-priori, the error probability can only be "estimated" using the "design set $D$".
+
+The other problem is that we can never reach a big enough set that contains all possible examples of the object we want to recognize: if we wanted to build a perfect classifier for sea bass, we would probably need an infinite amount of training data which is also "sparse" enough. This is the so-called "**Issue of generalization** (error)". This means that we can only estimate error using "patterns", in order to have a reliable estimate on how the classifier will perform on future, unknown samples and patterns found in the wild.
+
+## Apparent Error
+
+If we have a datased $D=[x_1,x_2,\dots,x_n]$, the easiest way to compute the error is to apply our classifier to all $n$ patterns in $D$ and compute the rate of misclassified ones:
+
+$$
+\text{Apparent Error} = \frac{n_{\text{err}}}{n}
+$$
+
+This error is called "apparent" because it is actually a _very optimistic_ estimate of the true error, because we have no idea on how the classifier will operate on actual unknown patterns (this is the problem of overfitting: we can have a classifier that performs incredibly well on a small subset, but terribly on another).
+
+## Hold-out
+
+A better method to estimate a more reasonable error is called "**Hold-out**". The idea is to take $D$ and divide it into two, disjoint subset:
+
+1. The _training set_ is used to train the classifier (typically the bigger one)
+2. The _test set_ is used to assess the error probability
+
+The error computed on the test set is usually _pessimistic_, and we can improve on its reliability by doing different trials with different sets, to then compute the mean value and the standard deviation of the error estimation.
+
+## K-fold Cross Validation
+
+Another technique is called "**K-fold Cross Validation**". The idea here is to take $D$ and divide it into $K$ subsets of size $n/K$. Then, we design the classifier by
+
+1. Uniting $k-1$ subsets, that make our training set
+2. Estimate the error on the $k$-th set left out
+3. Repeat this $k$ times
+4. Compute the mean value and standard deviation of the error estimation
+
+If we have $K=n$, the technique is named "**leave-one-out**".
+
+## Bootstrap
+
+Here, we generate $L$ subsets of size $n$ by random sampling from $D$ with replacement. Then, we compute the mean value and the standard deviation with the $L$ subsets.
+
+### Choosing a method
+
+In general:
+
+- If $D$ is small, K-fold cross validation or bootstrap should work reasonably well, but are expensive
+- If $D$ is large, hold-out should be ok
+
+Also, if $D$ is very large it is usually better to split it into three parts:
+
+1. The training set
+2. The validation set
+3. The **test set**
+
+The test set is used as a second check to prevent the classifier from overfitting:
+
+![validation vs test set | center](https://i.imgur.com/Occxv8d.png)
+
+Also, performance evaluation is influenced by multiple factors:
+
+1. The choice of the test set data: different data results in different performance evaluation
+2. The choice of the training set data: some classifiers are unstable, meaning that small changes in the training data cause large changes in the error estimation
+3. The "randomness" in the initialization of some classifier parameters
+
+Meaning that the best choice is usually to test an algorithm with different sets to have more reliable results.
+
+In particular, if the **standard deviation** of the classifier error is acceptable, then the set $D$ can be used to both design and train the classifier. If, instead, the deviation is large, different methods should be used.
+
+## Confusion Matrix
+
+We can also compute the classifier performance using a "**Confusion Matrix**". It is a matrix for $c$ classes of size $c \times c$: the rows represent the true classes, while the columns the _predicted ones_. The element $(i,j)$ of such a matrix provides a value estimating the probability of a sample class $\omega_i$ being predicted as $\omega_j$, while the diagonal elements represent the correct classification probabilities:
+
+![Example confusion matrix | center](https://i.imgur.com/7l5qWQY.png)
+
+# Data Clustering
+
+Up until known, all the algorithms described fall into the category of "**supervised learning**": we devise a learning algorithm that is able to "better itself", since all training samples are also labeled with their correct class. However, this approach is sometimes not feasible in the real world: collecting and labeling data might be extremely costly and sometimes entirely impossible.
+
+**Unsupervised learning** solves this problem by taking the opposite route: instead of having a defined set of classes before the training starts, the algorithm is required to identify the **clusters** of data that are not known a-priori, to get some insight into the structure of the data used. Naively, this problem might be stated in the following way:
+
+> [!NOTE] Unsupervised Learning
+> 
+> An unsupervised learning algorithm categorizes data samples from a set $D$ by partitioning it into smaller clusters which are not known before training.
+
+However, this intuitive notion gets messy very quickly, even for humans. For example, how many clusters could be created from this image?
+
+![clustering example | center](https://i.imgur.com/GByCMyr.png)
+
+![many possible clusters | center](https://i.imgur.com/uwgs1Mp.png)
+
+
+Not to mention the many cases of _optical illusions_ and cognitive biases.
+
+To solve this issue, clustering algorithms work through different kinds of categorization rules, such as:
+
+- **Connectivity-based** clustering
+	- i.e., Linkage Clustering
+- **Centroid-based** clustering
+	- i.e., the K-means algorithm
+- **Model-based** clustering
+	- i.e., the Gaussian mixture
+- and others
+
+## Linkage Clustering
+
+Linkage clustering is a _Connectivity-based clustering_ algorithm: it exploits the links and connections in the data set to create clusters of interconnected data.
+
+It starts by defining a cluster per sample, known as a _singleton_. These singletons are then combined sequentially into larger and larger clusters, until all of the elements are in a single one. The aggregation condition is that clusters are united if they have the _shortest distance_ among all the others, which is defined by the **linkage function**, of which there are many variants:
+
+- **Single-linkage** function, which calculates the distance between the _closest_ points of two clusters:
+  
+  $$
+   D(C_1,C_2) = \text{min}_{x_1 \in C_1, x_2\in C_2} d(x_1,x_2)
+   $$
+
+* **Complete/Maximum-linkage** function, which calculates the distance between the _farthest_ points of two clusters:
+  
+  $$
+   D(C_1,C_2) = \text{max}_{x_1 \in C_1, x_2 \in C_2} d(x_1, x_2)
+   $$
+
+* **Average-linkage** function, which calculates the average distance among all points of two clusters:
+  
+  $$
+   D(C_1,C_2) = \frac{1}{|C_1||C_2|} \sum_{x_1 \in C_1} \sum_{x_2 \in C_2} d(x_1,x_2)
+   $$
+
+* **Centroid-linkage** function, which calculates the squared distance of the centroids (the average center points) of the two clusters:
+  
+  $$
+   D(C_1,C_2) = ||\mu_1 - \mu_2||^2 \text{, with } \mu_k \text{ the centroid of } C_k
+   $$
+
+Note how $d(x_1,x_2)$ can be any function to calculate distances.
+
+> [!HELP] Visual example of single-linkage
+> 
+> The single-linkage algorithm starts by creating singleton clusters of data. Here, for example, we have a total of $5$ samples: the elements of the table represent the distance between the clusters.
+> 
+> ![samples | center](https://i.imgur.com/BEY23XE.png)
+> 
+> Then, the algorithm starts by grouping the closest ones: in this case, the samples smallest distance is that between $a$ and $b$, meaning they can be grouped:
+> 
+> ![grouping b | center](https://i.imgur.com/r7rhbL1.png)
+> 
+> We can then iterate this process to now group $c,e$ as well:
+> 
+> ![grouping c,e | center](https://i.imgur.com/tUa6Ib4.png)
+> 
+> This aggregation procedure can be represented graphically using a **dendrogram**:
+> 
+> ![dendrogram | center](https://i.imgur.com/7u44kuE.png)
+> 
+> The dendrogram is useful because if we need $n$ clusters we just need to "cut it" at the desired dimension.
+
+## Complete-linkage Clustering
+
+Complete-linkage Clustering works in a similar way to single-linkage:
+
+> [!HELP] Example
+> 
+> Taking the example from above, the first step of the complete-linkage clustering still consists of having to group $b$. However, the difference is in the next step:
+> 
+> ![complete clustering | center](https://i.imgur.com/rx6jOL7.png)
+> 
+> Here we operate by taking the smallest distances, and iterating several times we end up with the above sample.
+>    
+> Then we take not the smallest, but the greatest value of the distances, which is $43$. The difference with single linkage is that we take the highest value for composite clusters: if we have $(a,b)$ then we take the highest, not the lowest value between the two to compute the distance with another class, say $c$. The resulting dendrogram is:
+> 
+> ![dendrogram | center](https://i.imgur.com/nUCWddc.png)
+
+### Differences
+
+Single and complete/average linkage approach the problem in two different ways, and as a result have two different "emerging" behaviors:
+
+- Single-linkage follows "paths" that connect samples
+- Complete/average-linkage tends to form "spherical clusters"
+
+![single vs average | center](https://i.imgur.com/y8sCbig.png)
+
+## $k$-means clustering
+
+The $k$-means clustering algorithm works by defining a "objective" or "**distortion function**":
+
+$$
+J = \sum_{n=1}^K \sum_{k=1}^K r_{nk} ||x_n - \mu_k||^2
+$$
+
+Where $r_{nk}=1$ if the sample $n$ belongs to cluster $k$, or $0$ otherwise. $\mu_k$, instead, is the centroid of the cluster $k$.
+
+The goal of the algorithm is to **minimize the distortion function**: the variables to be change is the position of the center of the cluster, $\mu_k$. This is done so that all elements that are part of the cluster $k$ ($r_{nk}=1$) are as close as possible to the center of the cluster, $\mu_k$ (since we are minimizing the euclidean distance). This is done through the following steps:
+
+1. **Initialization**: we initialize $k$ cluster centers randomically. In this case, $k=2$:
+   
+   ![initialization | center](https://i.imgur.com/V0Xesuy.png)
+
+2. **Expectation step (e-step)**: now, we assing all data points to the _closest cluster center_:
+   
+   ![e-step | center](https://i.imgur.com/6gbDnk5.png)
+
+3. **Maximization step (m-step)**: finally, we change the cluster center as the _average_ of the assigned points.
+   
+   ![m-step | center](https://i.imgur.com/jICtyZE.png)
+
+4. We repeat until the clusters converge
+   
+   ![convergence | center](https://i.imgur.com/sYlxBNh.png)
+
+Here is a graphical representation of the k-means clustering algorithm used for compression/quantization: an higher value of $K$ results in more clusters and more vivid images:
+
+![k-means example | center](https://i.imgur.com/jmgJtw2.png)
+
+The $k$-means algorithm is guaranteed to converge in a finite number of steps, and has the property of being very simple and efficient. However, it can be used only if we know the number of clusters $K$ and is very influenced by outlier samples, since all clusters found are spherical:
+
+![outlier | center](https://i.imgur.com/A408aUv.png)
+
+## Gaussiam Mixture Models (GMMs)
+
+We saw that the $k$-means algorithm operates by maximizing the distortion function:
+
+$$
+J = \sum_{n=1}^K \sum_{k=1}^K r_{nk} ||x_n - \mu_k||^2
+$$
+
+Since $J$ takes into account the term $||x_n - \mu_k||^2$ as the distance function, the clusters that end up being traced have a _spherical form_. Also, $k$-means assumes that all clusters have the same _prior probability_, and that a point is either part of a cluster or not. We could call this a "_geometrical approach_", but these assumptions end up creating strict constraints that could end up in a worse overall classifier. For example:
+
+1. Why do we have to limit ourselves with saying that clusters must be spherical? Some more _elliptical_ shapes could help better classify data sets with many outliers
+2. Why do we have to say that all clusters have the same prior probability? Maybe there are some classes with more elements than others a priori
+3. Why do we have to have such a marked distinction between one cluster and another? We might also want to say that a sample has a certain _probability_ of being part of a cluster than the absolute certainty
+
+These assumptions are made because the $k$-means algorithm is a specialized version of the more general **Gaussian Mixture Models (GMMs)**. GMMs aim at removing all these constraints in the following ways:
+
+1. Instead of having spherical clusters, we assume that the samples in the training set follow some form of a _normal distribution_: this way, we can optimize all algorithm to find the best values for priors, means and covariances.
+2. Instead of having a 0 or 1 probability for a sample to be part of a cluster, we introduce "**fuzzy clustering**": each point belongs to each cluster with a certain probability
+3. Instead of having the same a priori probability for all clusters, we assume that the priors are _not known_ and that they must be learned
+
+Combining all these, we get that each sample $x$ has a probability $p(x)$ to be generated that is:
+
+> [!NOTE] GMM probability
+>
+> $$
+> p(x) = \sum_z p(z) p(x\ |\ z) = \sum_{k=1}^K \pi_k N(x\ |\ \mu_k, \Sigma_k)
+> $$
+> 
+> Where:
+> 
+> - $\pi_k$ is the prior probability of the cluster $k$
+> - $N(x\ |\ \mu_k, \Sigma_k)$ is a Gaussian distribution with means $x\ |\ \mu_k$ and covariance $\Sigma_k$
+
+We say "probability of being generated" because the idea is to optimize the parameters of the Gaussian (priors, means and covariance) to try and "guess" the best possible function that generated the samples.
+
+Here, the probability of a sample being part of a cluster is given by:
+
+$$
+\gamma(z_k) = p(z_k = 1\ |\ x) = \frac{p(z_k=1)p(x\ |\ z_k=1)}{\sum_{j=1}^Kp(z_j = 1)p(x\ |\ z_j=1)} = \frac{\pi_k N(x\ |\ \mu_k, \Sigma_k)}{\sum_{j=1}^K \pi_j N(x\ |\ \mu_j, \Sigma_j)}
+$$
+
+This value can be obtained by applying Bayes' rule to $p(z_k=1\ |\ x)$ and then rewriting the value of the probability function using the Gaussian.
+
+Now, the GMM algorithm works by trying to find the best possible values for the parameters of the Gaussian. This technique is called "**Expectation maximization**", and the aim is to maximize the function of the log likelihood:
+
+$$
+\ln p(X\ |\ \mu, \Sigma, \pi)
+$$
+
+There are multiple steps to this procedure. 
+
+> [!NOTE] EM for GMM
+> 
+> First, we initialize $\mu_k, \Sigma_k, \pi_k$, and evaluate an initial $p(x)$. Then, we evaluate the responsibilities using the current parameters:
+>
+>$$
+>\gamma(z_{nk}) = \frac{\pi_k N(x_n\ |\ \mu_k, \Sigma_k)}{\sum_{j=1}^K \pi_j N(x_n\ |\ \mu_j, \Sigma_j)}
+>$$
+>
+>We then do the _maximization step_ (M step) by re-estimating the parameters with the responsibilities:
+>
+>- The mean, $\mu_k$, is calculated as the weighted average of all data points by the responsibility:
+>
+>	$$
+>	\mu_k^{\text{new}} = \frac{1}{N_k} \sum_{n=1}^N \gamma(z_{nk}) x_n
+>	$$
+> 
+> - The covariance, $\Sigma_k$, is the weighted average of the variance of single points by the responsibility:
+>
+>	$$
+>	\Sigma_k^{\text{new}} = \frac{1}{N_k} \sum_{n=1}^N \gamma(z_{nk})(x_n-\mu_k^{\text{new}})(x_n-\mu_k^{\text{new}})^T
+>	$$
+>
+> - The prior, $\pi_k$, is the mean of the responsibility of the cluster itself
+>
+>	$$
+> 	\pi_k^{\text{new}} = \frac{N_k}{N}
+>	$$
+>
+>	where
+>
+>	$$
+>	N_k = \sum_{n=1}^N \gamma(z_{nk})
+>	$$
+>	
+> Finally, we evaluate the log likelihood to see if either the parameters or the log itself converged to a stop criterion:
+> 
+> $$
+> \ln p(X\ |\ \mu, \Sigma, \pi) = \sum_{n=1}^N \ln\{\sum_{k=1}^N \pi_k N(x_n\ |\ \mu_k, \Sigma_k)\}
+> $$
+
+Visually, we can see that clusters are no longer spherical:
+
+![gmm clustering | center](https://i.imgur.com/RgabIqU.png)
+
+## Cluster Validation Function
+
+In the previous methods we discussed some limitations of clustering:
+
+- How many clusters do we search for?
+- How can we measure the validity of a cluster?
+- How can we define a good similarity measure?
+
+To address the problem of _cluster validation_, we can introduce two notion. First is that of a sampling error relative to a cluster's centroid:
+
+$$
+m_i = \frac{1}{n_i} \sum_{x \in D_i} x
+$$
+
+Where $i$ is the total number of clusters: we just calculate the centroid $m_i$ of a cluster $D_i$ as the average of coordinates of the points in the cluster. To then calculate the average error for a cluster $i$, we sum the squared distance of all points from the centroid:
+
+$$
+J_i = \sum_{x \in D_i} ||x-m_i||^2
+$$
+
+Then, the overall error $J_e$ can be measured by summing the errors of all clusters:
+
+$$
+J_e = \sum_{i=1}^c J_i = \sum_{i=1}^c \sum_{x \in D_i} ||x-m_i||^2
+$$
+Clusters that minimize the value of $J_e$ are called "**minimum-variance clusters**". This is, however, not always the best measure to calculate validity, as it works only if clusters are compact, well separated from each other and roughly of the same size, otherwise we can have some misleading results like these, where the cluster with the higher $J_e$ is actually better:
+
+![j_e error | center](https://i.imgur.com/sCjGTis.png)
+
+Other functions tend to generally promote _compact_ and _well-separated clusters_, like those that use the "**within-cluster scatter matrix, $S_w$**" and the "**between-cluster scatter matrix, $S_B$**":
+
+$$
+S_w = \sum_{i=1}^c S_i,\ \ \ \ S_i = \sum_{x \in D_i} (x-m_i)(x-m_i)^T
+$$
+
+$$
+S_B = \sum_{i=1}^c n_i(m_i-m)(m_i-m)^T
+$$
+
+For $S_w$, lower values indicate better results, while for $S_B$ it is the opposite: the higher the better.
+
+# Transformers
+
+The transformer technology was introduced by the paper "Attention is All you Need".
+
+Transformers are the foundational technology of **Large Language Models (LLM)**. Transformers allow LLMs to have a longer "attention span", so that they are able to understand longer and more complex sentences ("long-range" structures). Through this ability, they manage to perform complex tasks, like language translation, text generation and summarization, code generation, etc.
+
+## Attention Mechanisms
+
+Transformers introduced the concept of "**attention mechanisms**". This is a core difference to other classifiers: for example, linear ones have a set weight vectors which are always the same multiplied for all features:
+
+$$
+f(x) = w^Tx + b 
+$$
+
+Instead, transformers modify weights **depending on the value of $x$**:
+
+$$
+f(x) = w(x)^Tx + b
+$$
+
+This is named "attention", since LLMs can selectively "focus" on some features more than others, depending on their value.
+
+## Training
+
+Transformers have a pre-training phase where they are fed huge datasets of text: since the transformer architecture is parallelizable, it can scale to very big training dataset. The training is then **self-supervised**: LLMs are typically fed text with some "missing words" and are asked to complete the text (this is called "**Token prediction**"). There is then **fine-tuning**, a supervised learning with human feedback.
+
+### Scaling Laws
+
+LLMs scale on the number of parameters provided: performance of these models can be predicted given and the computing budget, to find the best possible amount of number of parameters:
+
+$$
+L(N, D) = E + \frac{A}{N^\alpha}+\frac{B}{D^\alpha}
+$$
+
+Where N and D are constants that depend on $C$, the budget cost measured on FLOps.
+
+### Emergent Abilities
+
+As LLMs scale with the given number of parameters, they are also able to learn some abilities which were not accounted for. I.E., a model learns to exploit vulnerabilities while learning how to code
+
+## Workings
+
+The first step of transformers is to transform text into _numerical vectors_, a process called "**Tokenization**", which could be done in many different ways:
+
+1. _Word-level_: one token per word. This way the vocabulary becomes very large, and unseen words cannot be treated.
+2. _Character-level_: one token per character. The opposite problem then word-level, tokens have very little meaning.
+
+The best way is to use sub-word tokenization.
